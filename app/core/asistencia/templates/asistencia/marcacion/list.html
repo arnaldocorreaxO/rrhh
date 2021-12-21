@@ -1,0 +1,67 @@
+{% extends 'list.html' %}
+{% load static %}
+{% block head_list %}
+    <link rel="stylesheet" href="{% static 'lib/bootstrap-daterangepicker-3.0.5/daterangepicker.css' %}" />
+    <script src="{% static 'lib/bootstrap-daterangepicker-3.0.5/spanish.js' %}"></script>
+    <script src="{% static 'lib/bootstrap-daterangepicker-3.0.5/daterangepicker.js' %}"></script>    
+    <script src="{% static '/asistencia/marcacion/js/list.js' %}"></script>    
+
+    <!-- DESHABILITAR BOTON DE LOAD| -->
+    <style>
+        .disabled_load_data {
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+{% endblock %}
+
+{% block columns %}
+    <th>ID</th>
+    <th>Sede</th>
+    <th>Fecha</th>
+    <th>Hora</th>
+    <!-- <th>Archivo</th> -->
+    <th class="text-center">Opciones</th>
+{% endblock %}
+
+
+{% block javascript_list %}
+    <!-- MODAL -->
+    <div class="modal fade" id="myModalDetails" role="dialog">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <b><i class="fa fa-search"></i> Archivos de Marcacion</b>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table width="100%"
+                                       class="table table-bordered display nowrap" id="tblArchivo">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 5%;">Id</th>
+                                        <th style="width: 40%;">Marcación</th>
+                                        <th style="width: 40%;">Reloj</th>
+                                        <th style="width: 15%;">Archivo</th>                                        
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content_modals %}
+    {% include 'loading.html' %}
+{% endblock %}

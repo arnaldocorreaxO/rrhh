@@ -1,0 +1,48 @@
+{% extends 'list.html' %}
+{% load static %}
+{% block head_list %}
+    <script src="{% static '/asistencia/reloj/js/list.js' %}"></script>
+{% endblock %}
+
+{% block columns %}
+    <th>ID</th>
+    <th>Sede</th>
+    <th>Denominacion</th>
+    <th class="text-center">Opciones</th>
+{% endblock %}
+
+{% block rows %}
+    {% for i in object_list %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.get_sede_display}}</td>
+            <td>{{ i }}</td> <!--retorna el metodo __str__-->
+            <td class="text-center">
+                <!-- <button class="btn btn-info btn-flat btn-xs btnTestConexion mx-1" title="Test Conexión" type="button" value="{{ i.id }}">
+                    <i class="fas fa-network-wired"></i>                                              
+                </button>  -->
+                <a href="#" data-toggle="tooltip" title="Test Conexión"
+                   class="btn btn-info btn-flat btnTestConexion" value="{{i.id}}">
+                    <i class="fas fa-network-wired"></i>
+                </a>
+                <a href="#" data-toggle="tooltip" title="Descargar Datos"
+                   class="btn btn-dark btn-flat btnDownloadData" value="{{i.id}}">
+                    <i class="fas fa-download"></i>
+                </a>
+                <a href="{% url 'reloj_update' i.id %}" data-toggle="tooltip" title="Editar registro"
+                   class="btn btn-warning btn-flat">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'reloj_delete' i.id %}" rel="delete" data-toggle="tooltip" title="Eliminar registro"
+                   class="btn btn-danger btn-flat">
+                    <i class="fas fa-trash"></i>
+                </a>
+           
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block content_modals %}
+    {% include 'loading.html' %}
+{% endblock %}

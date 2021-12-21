@@ -1,0 +1,25 @@
+{% load static %}
+<style>
+    .img-centro {
+        margin: 10px auto 10px;
+        display: block;
+    }
+</style>
+<div id="modal_proceso" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Procesando...</h4>
+                <!-- <button type="button" class="close" data-dismiss="modal">X</button> -->
+                
+            </div>
+            <div class="modal-body">
+                <img src="{% static 'img/loading/loading-102.gif' %}" class="img-centro" alt="Loading" width="150" height="150" />
+                <h6 class="modal-title">Aguarde un momento por favor!. Esto puede tomar tiempo</h6>
+            </div>
+            <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div> -->
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+{% extends 'list.html' %}
+
+{% block columns %}
+    <th>ID</th>
+    <th>Fecha</th>
+    <th>Hora</th>
+    <th>Reloj</th>
+    <th class="text-center">Opciones</th>
+{% endblock %}
+
+{% block rows %}
+    {% for i in object_list %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.fecha }}</td>
+            <td>{{ i.hora }}</td>
+            <td>{{ i.reloj }}</td>
+
+            <td class="text-center">
+                <a href="#" data-toggle="tooltip" title="Cargar Datos"
+                   class="btn btn-secondary btn-xs btn-flat btnLoadData" value="{{i.reloj.id}}">
+                    <i class="fas fa-database"></i>
+                </a>
+                <a href="{% url 'marcacion_update' i.id %}" data-toggle="tooltip" title="Editar registro"
+                    class="btn btn-warning btn-xs btn-flat">
+                    <i class="fas fa-edit"></i>
+                </a>
+                
+                <a href="{% url 'marcacion_delete' i.id %}" rel="delete" data-toggle="tooltip" title="Eliminar registro"
+                    class="btn btn-danger btn-xs btn-flat">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+

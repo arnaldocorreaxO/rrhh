@@ -1,0 +1,20 @@
+{% extends 'list.html' %}
+{% load static %}
+{% block head_list %}
+    <link rel="stylesheet" href="{% static 'lib/bootstrap-daterangepicker-3.0.5/daterangepicker.css' %}" />
+    <script src="{% static 'lib/bootstrap-daterangepicker-3.0.5/spanish.js' %}"></script>
+    <script src="{% static 'lib/bootstrap-daterangepicker-3.0.5/daterangepicker.js' %}"></script>    
+{% endblock %}
+
+
+{% block javascript_list %}
+    <script src="{% static '/asistencia/marcacion_archivo/js/list.js' %}"></script>    
+{% endblock %}
+
+{% block columns %}
+    <th>ID</th>
+    <th>Marcacion</th>
+    <th>Reloj</th>
+    <th>Archivo</th>
+    <th class="text-center">Opciones</th>
+{% endblock %}
