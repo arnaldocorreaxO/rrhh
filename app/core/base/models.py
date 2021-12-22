@@ -6,7 +6,7 @@ from crum import get_current_user
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.forms import model_to_dict
-from core.user.models import User
+
 # Create your models here.
 
 '''MODELO BASE'''
@@ -31,7 +31,7 @@ class ModeloBase(models.Model):
 	'''SAVE'''
 	def save(self, *args, **kwargs):
 		# user = get_current_user()
-		user = User.object.get(id=1)
+		user = settings.AUTH_USER_MODEL.object.get(id=1)
 		# print(user)
 		if user and not user.pk:
 			user = None
