@@ -30,8 +30,7 @@ class ModeloBase(models.Model):
 
 	'''SAVE'''
 	def save(self, *args, **kwargs):
-		# user = get_current_user()
-		user = 1
+		user = get_current_user()		
 		# print(user)
 		if user and not user.pk:
 			user = None
