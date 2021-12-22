@@ -6,7 +6,7 @@ from crum import get_current_user
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.forms import model_to_dict
-
+from core.user.models import User
 # Create your models here.
 
 '''MODELO BASE'''
@@ -30,7 +30,8 @@ class ModeloBase(models.Model):
 
 	'''SAVE'''
 	def save(self, *args, **kwargs):
-		user = get_current_user()
+		# user = get_current_user()
+		user = User.object.get(id=1)
 		# print(user)
 		if user and not user.pk:
 			user = None
@@ -76,164 +77,164 @@ class Modulo(ModeloBase):
 
 #EMPRESA
 class Empresa(ModeloBase):
-    ruc = models.CharField(verbose_name='RUC',max_length=10,validators=[MinLengthValidator(6)])
-    denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
-    nombre_fantasia = models.CharField(verbose_name='Nombre de Fantasía',max_length=100,unique=True)
-    direccion = models.CharField(verbose_name='Dirección',max_length=100)
-    telefono = models.CharField(verbose_name='Teléfono',max_length=20)    
-    celular = models.CharField(verbose_name='Celular',max_length=20,null=True,blank=True)    
-    email = models.CharField(max_length=50, verbose_name='Email',null=True,blank=True)
-    website = models.CharField(max_length=250, verbose_name='Página web',null=True,blank=True)
-    desc = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
-    imagen = models.ImageField(null=True, blank=True, upload_to='empresa/%Y/%m/%d', verbose_name='Logo')
-    iva = models.DecimalField(default=0.00, decimal_places=2, max_digits=9, verbose_name='Iva')
+	ruc = models.CharField(verbose_name='RUC',max_length=10,validators=[MinLengthValidator(6)])
+	denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
+	nombre_fantasia = models.CharField(verbose_name='Nombre de Fantasía',max_length=100,unique=True)
+	direccion = models.CharField(verbose_name='Dirección',max_length=100)
+	telefono = models.CharField(verbose_name='Teléfono',max_length=20)    
+	celular = models.CharField(verbose_name='Celular',max_length=20,null=True,blank=True)    
+	email = models.CharField(max_length=50, verbose_name='Email',null=True,blank=True)
+	website = models.CharField(max_length=250, verbose_name='Página web',null=True,blank=True)
+	desc = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
+	imagen = models.ImageField(null=True, blank=True, upload_to='empresa/%Y/%m/%d', verbose_name='Logo')
+	iva = models.DecimalField(default=0.00, decimal_places=2, max_digits=9, verbose_name='Iva')
 
-    def __str__(self):
-        return self.denominacion
-    
-    def getNombreFantasia(self):
-        return self.nombre_fantasia
+	def __str__(self):
+		return self.denominacion
+	
+	def getNombreFantasia(self):
+		return self.nombre_fantasia
 
-    def get_image(self):
-        if self.image:
-            return '{}{}'.format(settings.MEDIA_URL, self.image)
-        return '{}{}'.format(settings.STATIC_URL, 'img/default/empty.png')
+	def get_image(self):
+		if self.image:
+			return '{}{}'.format(settings.MEDIA_URL, self.image)
+		return '{}{}'.format(settings.STATIC_URL, 'img/default/empty.png')
 
-    def get_iva(self):
-        return format(self.iva, '.2f')
+	def get_iva(self):
+		return format(self.iva, '.2f')
 
-    def remove_image(self):
-        try:
-            if self.image:
-                os.remove(self.image.path)
-        except:
-            pass
-        finally:
-            self.image = None
+	def remove_image(self):
+		try:
+			if self.image:
+				os.remove(self.image.path)
+		except:
+			pass
+		finally:
+			self.image = None
 
-    def toJSON(self):
-        item = model_to_dict(self)
-        return item
+	def toJSON(self):
+		item = model_to_dict(self)
+		return item
 
-    class Meta:
-        # ordering = ['1',]
-        db_table = 'base_empresa'
-        verbose_name = 'empresa'
-        verbose_name_plural = 'empresas'
-        default_permissions = ()
-        permissions = (
-            ('view_empresa', 'Can view Empresa'),
-        )
-        ordering = ['-id']
+	class Meta:
+		# ordering = ['1',]
+		db_table = 'base_empresa'
+		verbose_name = 'empresa'
+		verbose_name_plural = 'empresas'
+		default_permissions = ()
+		permissions = (
+			('view_empresa', 'Can view Empresa'),
+		)
+		ordering = ['-id']
 
 '''SUCURSAL'''
 class Sucursal(ModeloBase):
-    #ID
-    empresa = models.ForeignKey(Empresa,verbose_name='Empresa',on_delete=models.CASCADE,related_name='empresa')
-    denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
-    denominacion_corta = models.CharField(verbose_name='Denominación Corta',max_length=25,unique=True,null=True,blank=True)
-    direccion = models.CharField(verbose_name='Dirección',max_length=100)
-    telefono = models.CharField(verbose_name='Teléfono',max_length=100)
+	#ID
+	empresa = models.ForeignKey(Empresa,verbose_name='Empresa',on_delete=models.CASCADE,related_name='empresa')
+	denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
+	denominacion_corta = models.CharField(verbose_name='Denominación Corta',max_length=25,unique=True,null=True,blank=True)
+	direccion = models.CharField(verbose_name='Dirección',max_length=100)
+	telefono = models.CharField(verbose_name='Teléfono',max_length=100)
 
-    def __str__(self):
-        return '{}'.format(self.denominacion)
-    
-    class Meta:
-        # ordering = ['1',]
-        db_table = 'base_sucursal'
-        verbose_name = 'sucursal'
-        verbose_name_plural = 'sucursales'
+	def __str__(self):
+		return '{}'.format(self.denominacion)
+	
+	class Meta:
+		# ordering = ['1',]
+		db_table = 'base_sucursal'
+		verbose_name = 'sucursal'
+		verbose_name_plural = 'sucursales'
 
 #MONEDA
 class Moneda(ModeloBase):
-    #ID
-    cod_moneda = models.CharField(verbose_name='Código',max_length=3,unique=True)
-    iso = models.CharField(verbose_name='ISO',max_length=3,unique=True)
-    denominacion = models.CharField(verbose_name='Denominación',max_length=100)
-    decimales = models.IntegerField(verbose_name='Decimales')
-    fec_cotizacion = models.DateField(verbose_name='Fecha Cotizacion')
-    precio_compra = models.FloatField(verbose_name='Precio Compra')
-    precio_venta = models.FloatField(verbose_name='Precio Venta')
+	#ID
+	cod_moneda = models.CharField(verbose_name='Código',max_length=3,unique=True)
+	iso = models.CharField(verbose_name='ISO',max_length=3,unique=True)
+	denominacion = models.CharField(verbose_name='Denominación',max_length=100)
+	decimales = models.IntegerField(verbose_name='Decimales')
+	fec_cotizacion = models.DateField(verbose_name='Fecha Cotizacion')
+	precio_compra = models.FloatField(verbose_name='Precio Compra')
+	precio_venta = models.FloatField(verbose_name='Precio Venta')
 
-    def __str__(self):
-        return '{}'.format(self.denominacion)
-    
-    class Meta:
-        # ordering = ['1',]
-        db_table = 'base_moneda'
-        verbose_name = 'moneda'
-        verbose_name_plural = 'monedas'
+	def __str__(self):
+		return '{}'.format(self.denominacion)
+	
+	class Meta:
+		# ordering = ['1',]
+		db_table = 'base_moneda'
+		verbose_name = 'moneda'
+		verbose_name_plural = 'monedas'
 
 #MONEDA
 class TipoComprobante(ModeloBase):
-    #ID
-    tip_comprobante =models.AutoField(db_column= 'tip_comprobante',auto_created=True, primary_key=True, serialize=False, verbose_name='Tipo Comprobante')
-    abreviatura = models.CharField(verbose_name='Abreviatura',max_length=6,unique=True)
-    descripcion = models.CharField(verbose_name='Descripción',max_length=100,unique=True)
-    operacion_stock = models.CharField(verbose_name='Operacion Stock',max_length=1,blank=True,null=True,choices=choiceOperacionSaldo())    
-    operacion_saldo = models.CharField(verbose_name='Operacion Saldo',max_length=1,blank=True,null=True,choices=choiceOperacionSaldo())
-    ver_en_recibo = models.CharField(verbose_name='Ver en Recibo',max_length=1,blank=True,null=True,choices=choiceSiNo())
-    ver_en_compra = models.CharField(verbose_name='Ver en Compra',max_length=1,blank=True,null=True,choices=choiceSiNo())
-    ver_en_venta = models.CharField(verbose_name='Ver en Venta',max_length=1,blank=True,null=True,choices=choiceSiNo())
-    nro_de_lineas = models.IntegerField(verbose_name='Nro. de Lineas Pre-Impreso')
-        
-    def __str__(self):
-        return '{} - {}'.format(self.abreviatura,self.descripcion)
-    
-    class Meta:
-        # ordering = ['1',]
-        db_table = 'base_tipo_comprobante'
-        verbose_name = 'Tipo de Comprobante'
-        verbose_name_plural = 'Tipos de Comprobantes'
+	#ID
+	tip_comprobante =models.AutoField(db_column= 'tip_comprobante',auto_created=True, primary_key=True, serialize=False, verbose_name='Tipo Comprobante')
+	abreviatura = models.CharField(verbose_name='Abreviatura',max_length=6,unique=True)
+	descripcion = models.CharField(verbose_name='Descripción',max_length=100,unique=True)
+	operacion_stock = models.CharField(verbose_name='Operacion Stock',max_length=1,blank=True,null=True,choices=choiceOperacionSaldo())    
+	operacion_saldo = models.CharField(verbose_name='Operacion Saldo',max_length=1,blank=True,null=True,choices=choiceOperacionSaldo())
+	ver_en_recibo = models.CharField(verbose_name='Ver en Recibo',max_length=1,blank=True,null=True,choices=choiceSiNo())
+	ver_en_compra = models.CharField(verbose_name='Ver en Compra',max_length=1,blank=True,null=True,choices=choiceSiNo())
+	ver_en_venta = models.CharField(verbose_name='Ver en Venta',max_length=1,blank=True,null=True,choices=choiceSiNo())
+	nro_de_lineas = models.IntegerField(verbose_name='Nro. de Lineas Pre-Impreso')
+		
+	def __str__(self):
+		return '{} - {}'.format(self.abreviatura,self.descripcion)
+	
+	class Meta:
+		# ordering = ['1',]
+		db_table = 'base_tipo_comprobante'
+		verbose_name = 'Tipo de Comprobante'
+		verbose_name_plural = 'Tipos de Comprobantes'
 
 
 #SECTOR OPERATIVO
 class SectorOperativo(ModeloBase):
-    #ID
-    sucursal = models.ForeignKey(Sucursal,verbose_name='Sucursal',on_delete=models.CASCADE,related_name='fk_sucursal_%(app_label)s_%(class)s')
-    denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
-    
-    def __str__(self):
-        return '{} - {}'.format(self.pk,self.denominacion)
-    
-    class Meta:
-        ordering = ['pk',]
-        db_table = 'base_sector_operativo'
-        verbose_name = 'Sector Operativo'
-        verbose_name_plural = 'Sectores Operativos'
+	#ID
+	sucursal = models.ForeignKey(Sucursal,verbose_name='Sucursal',on_delete=models.CASCADE,related_name='fk_sucursal_%(app_label)s_%(class)s')
+	denominacion = models.CharField(verbose_name='Denominación',max_length=100,unique=True)
+	
+	def __str__(self):
+		return '{} - {}'.format(self.pk,self.denominacion)
+	
+	class Meta:
+		ordering = ['pk',]
+		db_table = 'base_sector_operativo'
+		verbose_name = 'Sector Operativo'
+		verbose_name_plural = 'Sectores Operativos'
 
 
 
 #TIPO MOVIMIENTO
 class Caja(ModeloBase):    
-    nro_caja = models.IntegerField(verbose_name='Nro. Caja',db_column='nro_caja',primary_key=True)
-    denominacion = models.CharField(verbose_name='Caja',max_length=100,unique=True)
-    impresora1 = models.CharField(verbose_name='Impresora 1',max_length=100,blank=True,null=True)
-    impresora2 = models.CharField(verbose_name='Impresora 2',max_length=100,blank=True,null=True)
-    
+	nro_caja = models.IntegerField(verbose_name='Nro. Caja',db_column='nro_caja',primary_key=True)
+	denominacion = models.CharField(verbose_name='Caja',max_length=100,unique=True)
+	impresora1 = models.CharField(verbose_name='Impresora 1',max_length=100,blank=True,null=True)
+	impresora2 = models.CharField(verbose_name='Impresora 2',max_length=100,blank=True,null=True)
+	
 
-    def __str__(self):
-        return '{} - {}'.format(self.nro_caja,self.denominacion)
+	def __str__(self):
+		return '{} - {}'.format(self.nro_caja,self.denominacion)
 
-    class Meta:
-        ordering = ['nro_caja',]
-        db_table = 'base_caja'
-        verbose_name = 'caja'
-        verbose_name_plural = 'cajas'
+	class Meta:
+		ordering = ['nro_caja',]
+		db_table = 'base_caja'
+		verbose_name = 'caja'
+		verbose_name_plural = 'cajas'
 
 #TIPO MOVIMIENTO
 class CajaComprobante(ModeloBase):    
-    nro_caja = models.ForeignKey(Caja,verbose_name='Nro. Caja',db_column='nro_caja',on_delete=models.CASCADE,related_name='fk_caja_%(app_label)s_%(class)s')
-    tip_comprobante = models.ForeignKey(TipoComprobante,verbose_name='Comprobante',db_column ='tip_comprobante',on_delete=models.CASCADE,related_name='fk_tipo_comprobante_%(app_label)s_%(class)s')
-    nro_ini_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Inicial')
-    nro_fin_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Final')
-    nro_act_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Actual')
+	nro_caja = models.ForeignKey(Caja,verbose_name='Nro. Caja',db_column='nro_caja',on_delete=models.CASCADE,related_name='fk_caja_%(app_label)s_%(class)s')
+	tip_comprobante = models.ForeignKey(TipoComprobante,verbose_name='Comprobante',db_column ='tip_comprobante',on_delete=models.CASCADE,related_name='fk_tipo_comprobante_%(app_label)s_%(class)s')
+	nro_ini_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Inicial')
+	nro_fin_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Final')
+	nro_act_comprobante =models.IntegerField(verbose_name='Nro. Comprobante Actual')
 
-    def __str__(self):
-        return '{} - {}'.format(self.nro_caja,self.tip_comprobante)
+	def __str__(self):
+		return '{} - {}'.format(self.nro_caja,self.tip_comprobante)
 
-    class Meta:
-        # ordering = ['nro_caja',]
-        db_table = 'base_caja_comprobante'
-        verbose_name = 'Caja Comprobante'
-        verbose_name_plural = 'Caja Comprobantes'
+	class Meta:
+		# ordering = ['nro_caja',]
+		db_table = 'base_caja_comprobante'
+		verbose_name = 'Caja Comprobante'
+		verbose_name_plural = 'Caja Comprobantes'
