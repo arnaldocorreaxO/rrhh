@@ -31,7 +31,7 @@ class ModeloBase(models.Model):
 	'''SAVE'''
 	def save(self, *args, **kwargs):
 		# user = get_current_user()
-		user = settings.AUTH_USER_MODEL.object.get(id=1)
+		user = 1
 		# print(user)
 		if user and not user.pk:
 			user = None
