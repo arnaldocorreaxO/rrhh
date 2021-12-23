@@ -183,7 +183,6 @@
                                         <th>Fecha</th>
                                         <th class="text-center">Hora Inicio</th>
                                         <th class="text-center">Hora Fin</th>
-                                        <!-- <th class="text-right">Neto</th> -->
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -194,7 +193,6 @@
                                             <td>{{ mov.fecha|date:"d/m/Y" }}</td>
                                             <td class="text-center">{{ mov.fec_insercion|date:"H:i:s" }}</td>
                                             <td class="text-center">{{ mov.fec_modificacion|date:"H:i:s" }}</td>
-                                            <!-- <td class="text-right">{{ mov.peso_neto }}</td> -->                                            
                                         </tr>
                                     {% endfor %}
                                     </tbody>
