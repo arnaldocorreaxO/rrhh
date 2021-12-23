@@ -114,13 +114,13 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-3 col-sm-6 col-12">
-                    <a href="{#% url 'cliente_list' %}" class="small-box-footer">
+                    <a href="{% url 'sucursal_list' %}" class="small-box-footer">
                         <div class="info-box">
-                            <span class="info-box-icon bg-info"><i class="fas fa-user-friends"></i></span>
+                            <span class="info-box-icon bg-info"><i class="fas fa-building"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Clientes</span>
+                                <span class="info-box-text">Sucursales</span>
                                 <span class="info-box-number">
-                                    {{ clientes }}
+                                    {{ sucursales }}
                                 </span>
                             </div>
                         </div>
@@ -128,37 +128,39 @@
                     </a>
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-success"><i class="fas fa-truck"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Proveedores</span>
-                            <span class="info-box-number">
-                                {{ provider }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6 col-12">
-                    <a href="{#% url 'categoria_list' %}" class="small-box-footer">
+                    <a href="{% url 'reloj_list' %}" class="small-box-footer">
                         <div class="info-box">
-                            <span class="info-box-icon bg-warning"><i class="fas fa-truck-loading"></i></span>
+                            <span class="info-box-icon bg-success"><i class="far fa-clock"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Categorías</span>
+                                <span class="info-box-text">Relojes</span>
                                 <span class="info-box-number">
-                                    {{ categorias }}
+                                    {{ relojes }}
                                 </span>
                             </div>
                         </div>
                     </a>
                 </div>
                 <div class="col-md-3 col-sm-6 col-12">
-                    <a href="{#% url 'producto_list' %}" class="small-box-footer">
+                    <a href="{% url 'marcacion_list' %}" class="small-box-footer">
                         <div class="info-box">
-                            <span class="info-box-icon bg-danger"><i class="fas fa-box"></i></span>
+                            <span class="info-box-icon bg-warning"><i class="fas fa-clipboard-list"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Productos</span>
+                                <span class="info-box-text">Marcaciones</span>
                                 <span class="info-box-number">
-                                    {{ productos }}
+                                    {{ marcaciones }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6 col-12">
+                    <a href="/admin/" class="small-box-footer">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger"><i class="fas fa-user-shield"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Administración</span>
+                                <span class="info-box-number">
+                                    <!-- {#{ productos }} -->
                                 </span>
                             </div>
                         </div>
@@ -176,21 +178,24 @@
                                 <table class="table table-sm m-0">
                                     <thead>
                                     <tr>
-                                        <th class="text-center">Fecha</th>
-                                        <th>Vehiculo</th>
-                                        <th>Chofer</th>
-                                        <th>Producto</th>
-                                        <th class="text-right">Neto</th>
+                                        <th class="text-center">Id</th>
+                                        <th>Sede</th>
+                                        <th>Fecha</th>
+                                        <th class="text-center">Hora Inicio</th>
+                                        <th class="text-center">Hora Fin</th>
+                                        <!-- <th class="text-right">Neto</th> -->
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for mov in movimientos %}
                                         <tr>              
-                                            <td class="text-center">{{ mov.fec_insercion|date:"d/m/Y H:i:s" }}</td>
-                                            <td>{{ mov.vehiculo.get_full_name }}</td>
-                                            <td>{{ mov.chofer.get_full_name }}</td>
-                                            <td>{{ mov.producto }}</td> 
-                                            <td class="text-right">{{ mov.peso_neto }}</td>
+                                            
+                                            <td>{{ mov.id }}</td>
+                                            <td>{{ mov.get_sede_display }}</td>
+                                            <td>{{ mov.fecha|date:"d/m/Y" }}</td>
+                                            <td class="text-center">{{ mov.fec_insercion|date:"H:i:s" }}</td>
+                                            <td class="text-center">{{ mov.fec_modificacion|date:"H:i:s" }}</td>
+                                            <!-- <td class="text-right">{{ mov.peso_neto }}</td> -->
                                             
                                         </tr>
                                     {% endfor %}
@@ -200,7 +205,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <!-- <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-industry"></i> Movimientos del Día {{ current_date }}</h3>
@@ -209,7 +214,7 @@
                             <div id="graph_1" style="height: 64vh;"></div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="row">
                 <div class="col-lg-12">

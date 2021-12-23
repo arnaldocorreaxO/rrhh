@@ -4,9 +4,10 @@ from django.db.models.aggregates import Count
 
 from django.db.models.fields import FloatField
 from django.db.models.query_utils import Q
+from core.asistencia.models import Marcacion, Reloj
 
 # from core.bascula.models import Categoria, Cliente, Movimiento, Producto
-from core.base.models import Empresa
+from core.base.models import Empresa, Sucursal
 from core.security.models import Dashboard
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
@@ -285,20 +286,21 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     #         data['error'] = str(e)
     #     return JsonResponse(data, safe=False)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['title'] = 'Panel de administración'
-    #     context['fecha_actual'] = datetime.datetime.today().strftime("%d/%m/%Y")
-    #     context['fecha_hora_actual'] = datetime.datetime.today().strftime("%d/%m/%Y %H:%M:%S")
-    #     context['mes_actual'] = datetime.datetime.today().strftime("%B").capitalize()
-    #     context['anho_actual'] = datetime.datetime.today().strftime("%Y")
-    #     context['empresa'] = Empresa.objects.first()
-    #     context['clientes'] = Cliente.objects.all().count()
-    #     context['categorias'] = Categoria.objects.filter().count()
-    #     context['productos'] = Producto.objects.all().count()
-    #     context['movimientos'] = Movimiento.objects.filter().order_by('-id')[0:10]
-    #     context['usuario'] = User.objects.filter(id=self.request.user.id).first()
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        anho = datetime.datetime.today().strftime("%Y")
+        context['title'] = 'Panel de administración'
+        context['fecha_actual'] = datetime.datetime.today().strftime("%d/%m/%Y")
+        context['fecha_hora_actual'] = datetime.datetime.today().strftime("%d/%m/%Y %H:%M:%S")
+        context['mes_actual'] = datetime.datetime.today().strftime("%B").capitalize()
+        context['anho_actual'] = anho
+        context['empresa'] = Empresa.objects.first()
+        context['sucursales'] = Sucursal.objects.all().count()
+        context['relojes'] = Reloj.objects.all().count()
+        context['marcaciones'] = Marcacion.objects.filter(fecha__year=anho).count()
+        context['movimientos'] = Marcacion.objects.filter().order_by('-id')[0:10]
+        context['usuario'] = User.objects.filter(id=self.request.user.id).first()
+        return context
 
 
 @requires_csrf_token
