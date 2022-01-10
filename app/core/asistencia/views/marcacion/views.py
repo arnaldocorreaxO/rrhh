@@ -31,10 +31,13 @@ class MarcacionListView(PermissionRequiredMixin, ListView):
 		marcacion_id = request.POST['marcacion_id'] if 'marcacion_id' in request.POST else None
 		try:
 			if action == 'load_data':
+				import datetime
 				marcacion = Marcacion.objects.filter(id=marcacion_id).first()                
 				print_info(str(marcacion))
 				# Llamar en otro procedimiento
-				data = dbifx.insert_marcaciones(marcacion.id,'2021-01-01','2021-12-31') 
+				fec_fin = datetime.datetime.today().strftime("%Y-%m-%d")
+				fec_ini = f"{int(fec_fin[:4]) - 1 }-01-01"		#Inclusive el año anterior, cuando se hace la carga los primeros dias de enero 						
+				data = dbifx.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
 			elif action == 'search_archivos':
 				data = []
 				for det in MarcacionArchivo.objects.filter(marcacion_id=request.POST['id']):
