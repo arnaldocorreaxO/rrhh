@@ -1,19 +1,18 @@
 
-import math
 import json
-from django.conf import settings
-from config import dbinformix as dbifx
+import math
 
-from django.http import JsonResponse, HttpResponse
+from config import dbinformix as dbifx
+from config.utils import print_info
+from core.asistencia.forms import MarcacionForm
+from core.asistencia.models import Marcacion, MarcacionArchivo
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from core.asistencia.models import Marcacion, MarcacionArchivo, Reloj
-from core.asistencia.forms import MarcacionForm
-from config.utils import print_info
 
 class MarcacionListView(PermissionRequiredMixin, ListView):
 	model = Marcacion
@@ -76,9 +75,9 @@ class MarcacionListView(PermissionRequiredMixin, ListView):
 						# _where = " upper(fecha||' '|| hora||' '||asistencia_reloj.denominacion||' '||asistencia_reloj.ip ) LIKE upper(%s)"
 
 				qs = Marcacion.objects\
-							  			.filter()\
-										.extra(where=[_where], params=[_search])\
-										.order_by(*_order)
+                                    .filter()\
+                                    .extra(where=[_where], params=[_search])\
+                                    .order_by(*_order)
 
 				# #Pedidos del Año
 				# if len(start_date) and len(end_date):			
@@ -93,16 +92,16 @@ class MarcacionListView(PermissionRequiredMixin, ListView):
 					length = int(_length)
 					page = math.ceil(start / length) + 1
 					per_page = length
-				
-				if _length== '-1':
+
+				if _length == '-1':
 					qs = qs[start:]
 				else:
 					qs = qs[start:start + length]
 
 				position = start + 1
 				for i in qs:
-					item = i.toJSON()					
-					item['position'] = position					
+					item = i.toJSON()
+					item['position'] = position
 					data.append(item)
 					position += 1
 				# print(data)

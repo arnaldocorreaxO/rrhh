@@ -1,17 +1,14 @@
-import math
 import json
-from django.conf import settings
+import math
 
-from django.http import JsonResponse, HttpResponse
+from core.asistencia.models import MarcacionArchivo
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import ListView
 
-from core.asistencia.models import Marcacion, MarcacionArchivo
-from core.asistencia.forms import MarcacionForm
-from config.utils import print_info
 
 class MarcacionArchivoListView(PermissionRequiredMixin, ListView):
 	model = MarcacionArchivo
@@ -72,7 +69,7 @@ class MarcacionArchivoListView(PermissionRequiredMixin, ListView):
 				# 	qs = qs.filter(fecha__range=(start_date,end_date))
 								   
 				total = qs.count()
-				print(qs.query)
+				# print(qs.query)
 				
 				if _start and _length:
 					start = int(_start)

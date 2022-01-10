@@ -1,14 +1,15 @@
-import math
 import json
-from django.http import JsonResponse, HttpResponse
+import math
+
+from core.asistencia.forms import MarcacionDetalleForm
+from core.asistencia.models import MarcacionDetalle
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from core.asistencia.models import MarcacionDetalle
-from core.asistencia.forms import MarcacionDetalleForm
 
 class MarcacionDetalleListView(PermissionRequiredMixin, ListView):
 	model = MarcacionDetalle
@@ -69,7 +70,7 @@ class MarcacionDetalleListView(PermissionRequiredMixin, ListView):
 				# 	qs = qs.filter(fecha__range=(start_date,end_date))
 								   
 				total = qs.count()
-				print(qs.query)
+				# print(qs.query)
 				
 				if _start and _length:
 					start = int(_start)

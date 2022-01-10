@@ -1,5 +1,4 @@
 import json
-from datetime import date
 
 from config.utils import print_info
 from core.asistencia.forms import Reloj, RelojForm
@@ -10,7 +9,6 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-from django.views.generic.edit import FormView
 
 
 class RelojListView(PermissionRequiredMixin, ListView):
