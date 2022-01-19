@@ -3,15 +3,15 @@ import json
 from config.utils import print_info
 from core.asistencia.forms import Reloj, RelojForm
 from core.reports.forms import ReportForm
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionMixin
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from core.security.mixins import PermissionMixin
 
-
-class RelojListView(PermissionRequiredMixin, ListView):
+class RelojListView(PermissionMixin, ListView):
     model = Reloj
     template_name = 'asistencia/reloj/list.html'
     permission_required = 'asistencia.view_reloj'
@@ -48,7 +48,7 @@ class RelojListView(PermissionRequiredMixin, ListView):
         return context
 
 
-class RelojCreateView(PermissionRequiredMixin, CreateView):
+class RelojCreateView(PermissionMixin, CreateView):
     model = Reloj
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
@@ -93,7 +93,7 @@ class RelojCreateView(PermissionRequiredMixin, CreateView):
         return context
 
 
-class RelojUpdateView(PermissionRequiredMixin, UpdateView):
+class RelojUpdateView(PermissionMixin, UpdateView):
     model = Reloj
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
@@ -140,7 +140,7 @@ class RelojUpdateView(PermissionRequiredMixin, UpdateView):
         return context
 
 
-class RelojDeleteView(PermissionRequiredMixin, DeleteView):
+class RelojDeleteView(PermissionMixin, DeleteView):
     model = Reloj
     template_name = 'asistencia/reloj/delete.html'
     success_url = reverse_lazy('reloj_list')
