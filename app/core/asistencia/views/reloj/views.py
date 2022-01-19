@@ -14,7 +14,7 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 class RelojListView(PermissionRequiredMixin, ListView):
     model = Reloj
     template_name = 'asistencia/reloj/list.html'
-    permission_required = 'as.view_reloj'
+    permission_required = 'asistencia.view_reloj'
     form_class = ReportForm
  
     @method_decorator(csrf_exempt)
@@ -53,7 +53,7 @@ class RelojCreateView(PermissionRequiredMixin, CreateView):
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'as.add_reloj'
+    permission_required = 'asistencia.add_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -98,7 +98,7 @@ class RelojUpdateView(PermissionRequiredMixin, UpdateView):
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'as.change_reloj'
+    permission_required = 'asistencia.change_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -144,7 +144,7 @@ class RelojDeleteView(PermissionRequiredMixin, DeleteView):
     model = Reloj
     template_name = 'asistencia/reloj/delete.html'
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'as.delete_reloj'
+    permission_required = 'asistencia.delete_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
