@@ -3,15 +3,14 @@ import math
 
 from core.asistencia.forms import MarcacionDetalleForm
 from core.asistencia.models import MarcacionDetalle
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from core.security.mixins import PermissionMixin
 
-
-class MarcacionDetalleListView(PermissionRequiredMixin, ListView):
+class MarcacionDetalleListView(PermissionMixin, ListView):
 	model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/list.html'
 	permission_required = 'asistencia.view_marcaciondetalle'
@@ -108,7 +107,7 @@ class MarcacionDetalleListView(PermissionRequiredMixin, ListView):
 		return context
 
 
-class MarcacionDetalleCreateView(PermissionRequiredMixin, CreateView):
+class MarcacionDetalleCreateView(PermissionMixin, CreateView):
 	model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/create.html'
 	form_class = MarcacionDetalleForm
@@ -153,7 +152,7 @@ class MarcacionDetalleCreateView(PermissionRequiredMixin, CreateView):
 		return context
 
 
-class MarcacionDetalleUpdateView(PermissionRequiredMixin, UpdateView):
+class MarcacionDetalleUpdateView(PermissionMixin, UpdateView):
 	model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/create.html'
 	form_class = MarcacionDetalleForm
@@ -200,7 +199,7 @@ class MarcacionDetalleUpdateView(PermissionRequiredMixin, UpdateView):
 		return context
 
 
-class MarcacionDetalleDeleteView(PermissionRequiredMixin, DeleteView):
+class MarcacionDetalleDeleteView(PermissionMixin, DeleteView):
 	model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/delete.html'
 	success_url = reverse_lazy('marcacion_detalle_list')

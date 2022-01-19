@@ -6,7 +6,7 @@ from config import dbinformix as dbifx
 from config.utils import print_info
 from core.asistencia.forms import MarcacionForm
 from core.asistencia.models import Marcacion, MarcacionArchivo
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from core.security.mixins import PermissionMixin
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 
-class MarcacionListView(PermissionRequiredMixin, ListView):
+class MarcacionListView(PermissionMixin, ListView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/list.html'
 	permission_required = 'asistencia.view_marcacion'
@@ -123,7 +123,7 @@ class MarcacionListView(PermissionRequiredMixin, ListView):
 		return context
 
 
-class MarcacionCreateView(PermissionRequiredMixin, CreateView):
+class MarcacionCreateView(PermissionMixin, CreateView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/create.html'
 	form_class = MarcacionForm
@@ -168,7 +168,7 @@ class MarcacionCreateView(PermissionRequiredMixin, CreateView):
 		return context
 
 
-class MarcacionUpdateView(PermissionRequiredMixin, UpdateView):
+class MarcacionUpdateView(PermissionMixin, UpdateView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/create.html'
 	form_class = MarcacionForm
@@ -215,7 +215,7 @@ class MarcacionUpdateView(PermissionRequiredMixin, UpdateView):
 		return context
 
 
-class MarcacionDeleteView(PermissionRequiredMixin, DeleteView):
+class MarcacionDeleteView(PermissionMixin, DeleteView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/delete.html'
 	success_url = reverse_lazy('marcacion_list')
