@@ -3,7 +3,7 @@ import math
 
 from django.views.generic.edit import FormView
 
-from core.asistencia.forms import MarcacionDetalleForm
+from core.asistencia.forms import MarcacionDetalleForm, SearchForm
 from core.asistencia.models import MarcacionDetalle
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
@@ -17,6 +17,7 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 	template_name = 'asistencia/marcacion_detalle/list.html'
 	# permission_required = 'asistencia.view_marcaciondetalle'
 	permission_required = 'view_marcaciondetalle'
+	form_class = SearchForm
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
