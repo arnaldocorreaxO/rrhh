@@ -5,6 +5,7 @@ env/*
 *.directory 
 */.directory
 #app/core/reports/jasperbase.py
+app/deploy/start_server.bat
 app/deploy/start_bascula.bat
 *.pdf
 *.xls
@@ -14,3 +15,4 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+__pycache__/*.pyc

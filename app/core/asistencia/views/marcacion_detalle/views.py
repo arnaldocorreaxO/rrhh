@@ -31,6 +31,9 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 		try:
 			if action =='search':
 				data=[]
+				term = request.POST['term']		
+				start_date = request.POST['start_date']
+				end_date = request.POST['end_date']
 					
 				_start = request.POST['start']
 				_length = request.POST['length']
@@ -50,27 +53,27 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 						_dir = request.POST[f'order[{i}][dir]']
 						if (_dir=='desc'):
 							_order[i] = f"-{_order[i]}"
-	
 				
-				_where = "'' = %s"
-				# _where = "nro_pedido = 1000"
+				if len(term):
+					_search = term
+				
+				_where = "'' = %s"				
 				if len(_search):
 					if _search.isnumeric():
-						_where = " asistencia_marcaciondetalle.id = %s"
-					else:
-						_search = "%" + _search.replace(' ', '%') + "%"
-						_where = " upper(cod ||' '|| fecha ||' '|| hora ) LIKE upper(%s)"
+						_where = " asistencia_marcaciondetalle.cod = %s"
+					# else:
+					# 	_search = "%" + _search.replace(' ', '%') + "%"
+					# 	_where = " upper(cod ||' '|| fecha ||' '|| hora ) LIKE upper(%s)"
 						# _where = " upper(fecha||' '|| hora||' '||asistencia_reloj.denominacion||' '||asistencia_reloj.ip ) LIKE upper(%s)"
-
+				print(_where)
 				qs = MarcacionDetalle.objects\
 							  			.filter()\
 										.extra(where=[_where], params=[_search])\
 										.order_by(*_order)
 
-				# #Pedidos del Año
-				# if len(start_date) and len(end_date):			
-				# 	start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-				# 	qs = qs.filter(fecha__range=(start_date,end_date))
+				#Filtrar por Fechas
+				if len(start_date) and len(end_date):			
+					qs = qs.filter(fecha__range=(start_date,end_date))
 								   
 				total = qs.count()
 				# print(qs.query)

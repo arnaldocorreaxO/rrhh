@@ -12,12 +12,47 @@
 {% endblock %}
 
 {% block columns %}
-    <th>ID</th>
-    <th>Marcacion</th> 
-    <th>Reloj</th> 
-    <th>Cod</th>
-    <th>Fecha</th>
-    <th>Hora</th>
-    <th>Tipo</th>
-    <th class="text-center">Opciones</th>
+    <th style="width: 5%;">ID</th>
+    <th style="width: 20%;">Marcacion</th> 
+    <th style="width: 20%;">Reloj</th> 
+    <th style="width: 10%;">Cod</th>
+    <th style="width: 10%;">Fecha</th>
+    <th style="width: 10%;">Hora</th>
+    <th style="width: 5%;">Tipo</th>
+    <th style="width: 20%;" class="text-center">Opciones</th>
+{% endblock %}
+
+{% block content_list_before %}
+<input type="hidden" name="sucursal_id" id="action" value="{{ sucursal }}">
+<div class="row">    
+
+    <div class="col-lg-6">
+        <div class="form-group">
+            <label>Buscar Legajo </label>
+            <div class="input-group mb-3">
+                {{ form.term }}                
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="form-group">
+            <label>Rangos de fechas:</label>
+            <div class="input-group mb-3">
+                {{ form.date_range }}
+                <div class="input-group-append">
+                    <button class="btn btn-warning btnFilter" type="button">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <button class="btn btn-success btnSearchAll" type="button">
+                        <i class="fab fa-searchengin"></i> Ver todos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</div>
+    <hr>
 {% endblock %}
