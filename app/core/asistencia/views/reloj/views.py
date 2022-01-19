@@ -3,7 +3,6 @@ import json
 from config.utils import print_info
 from core.asistencia.forms import Reloj, RelojForm
 from core.reports.forms import ReportForm
-from django.contrib.auth.mixins import PermissionMixin
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
