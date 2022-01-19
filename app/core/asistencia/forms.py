@@ -85,3 +85,20 @@ class MarcacionDetalleForm(ModelForm):
         except Exception as e:
             data['error'] = str(e)
         return data
+
+''' 
+=============================
+===    FORM DE BUSQUEDA   ===
+============================= '''
+
+class SearchForm(forms.Form):
+    # Extra Fields
+    # Rango de fechas
+    date_range = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'autocomplete': 'off'
+    }))
+    # Termino de busqueda
+    term = forms.CharField()
+
+    term.widget.attrs.update({'class': 'form-control'})
