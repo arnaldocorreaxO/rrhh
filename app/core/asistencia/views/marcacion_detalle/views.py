@@ -1,6 +1,5 @@
 import json
 import math
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from django.views.generic.edit import FormView
 
@@ -13,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from core.security.mixins import PermissionMixin
 
-class MarcacionDetalleListView(PermissionRequiredMixin, FormView):
+class MarcacionDetalleListView(PermissionMixin, FormView):
 	# model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/list.html'
 	# permission_required = 'asistencia.view_marcaciondetalle'
