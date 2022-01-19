@@ -17,7 +17,8 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 class MarcacionListView(PermissionMixin, ListView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/list.html'
-	permission_required = 'asistencia.view_marcacion'
+	# permission_required = 'asistencia.view_marcacion'
+	permission_required = 'view_marcacion'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -128,7 +129,8 @@ class MarcacionCreateView(PermissionMixin, CreateView):
 	template_name = 'asistencia/marcacion/create.html'
 	form_class = MarcacionForm
 	success_url = reverse_lazy('marcacion_list')
-	permission_required = 'asistencia.add_marcacion'
+	# permission_required = 'asistencia.add_marcacion'
+	permission_required = 'add_marcacion'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -173,7 +175,8 @@ class MarcacionUpdateView(PermissionMixin, UpdateView):
 	template_name = 'asistencia/marcacion/create.html'
 	form_class = MarcacionForm
 	success_url = reverse_lazy('marcacion_list')
-	permission_required = 'asistencia.change_marcacion'
+	# permission_required = 'asistencia.change_marcacion'
+	permission_required = 'change_marcacion'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -219,7 +222,8 @@ class MarcacionDeleteView(PermissionMixin, DeleteView):
 	model = Marcacion
 	template_name = 'asistencia/marcacion/delete.html'
 	success_url = reverse_lazy('marcacion_list')
-	permission_required = 'asistencia.delete_marcacion'
+	# permission_required = 'asistencia.delete_marcacion'
+	permission_required = 'delete_marcacion'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):

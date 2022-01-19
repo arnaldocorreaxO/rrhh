@@ -13,7 +13,8 @@ from core.security.mixins import PermissionMixin
 class RelojListView(PermissionMixin, ListView):
     model = Reloj
     template_name = 'asistencia/reloj/list.html'
-    permission_required = 'asistencia.view_reloj'
+    # permission_required = 'asistencia.view_reloj'
+    permission_required = 'view_reloj'
     form_class = ReportForm
  
     @method_decorator(csrf_exempt)
@@ -52,7 +53,8 @@ class RelojCreateView(PermissionMixin, CreateView):
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'asistencia.add_reloj'
+    # permission_required = 'asistencia.add_reloj'
+    permission_required = 'add_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -97,7 +99,8 @@ class RelojUpdateView(PermissionMixin, UpdateView):
     template_name = 'asistencia/reloj/create.html'
     form_class = RelojForm
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'asistencia.change_reloj'
+    # permission_required = 'asistencia.change_reloj'
+    permission_required = 'change_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -143,7 +146,8 @@ class RelojDeleteView(PermissionMixin, DeleteView):
     model = Reloj
     template_name = 'asistencia/reloj/delete.html'
     success_url = reverse_lazy('reloj_list')
-    permission_required = 'asistencia.delete_reloj'
+    # permission_required = 'asistencia.delete_reloj'
+    permission_required = 'delete_reloj'
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):

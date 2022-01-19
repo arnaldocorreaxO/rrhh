@@ -10,3 +10,7 @@ app/deploy/start_bascula.bat
 *.xls
 *.xlsx
 *.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc

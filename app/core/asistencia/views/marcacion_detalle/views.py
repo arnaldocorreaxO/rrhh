@@ -16,7 +16,8 @@ from core.security.mixins import PermissionMixin
 class MarcacionDetalleListView(PermissionRequiredMixin, FormView):
 	# model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/list.html'
-	permission_required = 'asistencia.view_marcaciondetalle'
+	# permission_required = 'asistencia.view_marcaciondetalle'
+	permission_required = 'view_marcaciondetalle'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -115,7 +116,8 @@ class MarcacionDetalleCreateView(PermissionMixin, CreateView):
 	template_name = 'asistencia/marcacion_detalle/create.html'
 	form_class = MarcacionDetalleForm
 	success_url = reverse_lazy('marcacion_detalle_list')
-	permission_required = 'asistencia.add_marcaciondetalle'
+	# permission_required = 'asistencia.add_marcaciondetalle'
+	permission_required = 'add_marcaciondetalle'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -160,7 +162,8 @@ class MarcacionDetalleUpdateView(PermissionMixin, UpdateView):
 	template_name = 'asistencia/marcacion_detalle/create.html'
 	form_class = MarcacionDetalleForm
 	success_url = reverse_lazy('marcacion_detalle_list')
-	permission_required = 'asistencia.change_marcaciondetalle'
+	# permission_required = 'asistencia.change_marcaciondetalle'
+	permission_required = 'change_marcaciondetalle'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
@@ -206,7 +209,8 @@ class MarcacionDetalleDeleteView(PermissionMixin, DeleteView):
 	model = MarcacionDetalle
 	template_name = 'asistencia/marcacion_detalle/delete.html'
 	success_url = reverse_lazy('marcacion_detalle_list')
-	permission_required = 'asistencia.delete_marcaciondetalle'
+	# permission_required = 'asistencia.delete_marcaciondetalle'
+	permission_required = 'delete_marcaciondetalle'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):

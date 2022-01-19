@@ -12,7 +12,8 @@ from core.security.mixins import PermissionMixin
 class MarcacionArchivoListView(PermissionMixin, ListView):
 	model = MarcacionArchivo
 	template_name = 'asistencia/marcacion_archivo/list.html'
-	permission_required = 'asistencia.view_marcacionarchivo'
+	# permission_required = 'asistencia.view_marcacionarchivo'
+	permission_required = 'view_marcacionarchivo'
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
