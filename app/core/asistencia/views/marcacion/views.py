@@ -43,8 +43,7 @@ class MarcacionListView(PermissionMixin, ListView):
 				for det in MarcacionArchivo.objects.filter(marcacion_id=request.POST['id']):
 					data.append(det.toJSON())								
 			elif action =='search':
-				data=[]
-					
+				data=[]					
 				_start = request.POST['start']
 				_length = request.POST['length']
 				_search = request.POST['search[value]']

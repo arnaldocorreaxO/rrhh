@@ -61,6 +61,11 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 				if len(_search):
 					if _search.isnumeric():
 						_where = " asistencia_marcaciondetalle.cod = %s"
+					elif len(_search)==9:
+						cod_desde = _search[:4]
+						cod_hasta = _search[5:]
+						_search=''
+						_where += f" AND asistencia_marcaciondetalle.cod BETWEEN '{cod_desde}' AND '{cod_hasta}'"
 					# else:
 					# 	_search = "%" + _search.replace(' ', '%') + "%"
 					# 	_where = " upper(cod ||' '|| fecha ||' '|| hora ) LIKE upper(%s)"
