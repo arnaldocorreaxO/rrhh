@@ -183,9 +183,9 @@ def getTipoMarcacion(*args):
         horario_ent_segundos = int(horario_entrada[:2])*3600 + int(horario_entrada[3:])*60
         horario_sal_segundos = int(horario_salida[:2]) *3600 + int(horario_salida[3:])*60
 
-        #Si la diferencia entre la hora de marcacion y el horario de entrada supera 2 h 30 min ya se considera salida S
-        if abs(horario_ent_segundos - hora_segundos) >= 9000:
-            tipo = 'S'
+        #Si la diferencia entre la hora de marcacion y el horario de entrada supera 3 horas ya se considera Entrada E
+        if abs(horario_ent_segundos - hora_segundos) >= 10800:
+            tipo = 'E'
 
     except Exception as e:
         print(e)
