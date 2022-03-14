@@ -183,8 +183,8 @@ def getTipoMarcacion(*args):
         horario_ent_segundos = int(horario_entrada[:2])*3600 + int(horario_entrada[3:])*60
         horario_sal_segundos = int(horario_salida[:2]) *3600 + int(horario_salida[3:])*60
 
-        #Si la diferencia entre la hora de marcacion y el horario de entrada supera 1 h 30 min ya se considera salida S
-        if abs(horario_ent_segundos - hora_segundos) >= 5400:
+        #Si la diferencia entre la hora de marcacion y el horario de entrada supera 2 h 30 min ya se considera salida S
+        if abs(horario_ent_segundos - hora_segundos) >= 9000:
             tipo = 'S'
 
     except Exception as e:
@@ -221,8 +221,8 @@ def insert_marcaciones(*args):
         #                             .filter(cod='0668',marcacion__in=(marcacion_list),fecha__range=(fecha_desde,fecha_hasta))\
         #                             .order_by('cod','fecha','hora')
         qs = MarcacionDetalle.objects\
-                                    .filter(marcacion = marcacion_id,fecha__range=(fecha_desde,fecha_hasta))\
-                                    .order_by('cod','fecha','hora')
+                             .filter(marcacion = marcacion_id,fecha__range=(fecha_desde,fecha_hasta))\
+                             .order_by('cod','fecha','hora')
         print(qs.query)
         for row in qs:
             row.fecha = row.fecha.strftime('%d-%m-%Y')

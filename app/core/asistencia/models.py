@@ -116,7 +116,7 @@ class Reloj(ModeloBase):
 					
 					# Llamar en otro procedimiento
 					# rtn = dbifx.insert_marcaciones(marcacion.id,'2021-01-01','2021-12-31') 
-					data['info'] = f'DESCARGA DE DATOS REALIZADA CON ÉXITO\n<br>{marcacion}'
+					data['info'] = f'DESCARGA DE DATOS REALIZADA CON ÉXITO\n<br>{marcacion}\n<br> Total Registros: {nRows}'
 						
 				else:
 					msg = "NO SE ENCONTRARON DATOS EN EL RELOJ"

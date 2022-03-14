@@ -1,6 +1,27 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,vscode,python,django
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,vscode,python,django
 
+*.pyc
+###xO###
+*migrations/* 
+*migrations/ 
+*env/ 
+env/* 
+*.directory 
+*/.directory
+#app/core/reports/jasperbase.py
+app/deploy/start_server.bat
+app/deploy/start_bascula.bat
+*.pdf
+*.xls
+*.xlsx
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+__pycache__/*.pyc
+
 ### Django ###
 *.log
 *.pot

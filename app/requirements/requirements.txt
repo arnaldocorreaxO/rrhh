@@ -6,13 +6,16 @@ CairoSVG==2.5.0
 certifi==2020.12.5
 cffi==1.14.4
 chardet==4.0.0
+configparser==5.0.2
 cssselect2==0.4.1
 defusedxml==0.6.0
 diff-match-patch==20200713
 Django==3.1.2
 django-admin-interface==0.16.1
 django-colorfield==0.4.1
+django-crispy-forms==1.12.0
 django-crum==0.7.5
+django-easy-select2==1.5.7
 django-flat-responsive==2.0
 django-flat-theme==1.1.4
 django-import-export==2.5.0
@@ -21,6 +24,7 @@ et-xmlfile==1.0.1
 future==0.18.2
 html5lib==1.1
 idna==2.10
+IfxPy==3.0.3
 jdcal==1.4.1
 JPype1==1.2.1
 MarkupPy==1.14
@@ -33,6 +37,7 @@ pycodestyle==2.7.0
 pycparser==2.20
 Pyphen==0.10.0
 pyreportjasper==2.1.2
+pyserial==3.5
 python-bidi==0.4.2
 python-dateutil==2.8.1
 pytz==2019.3
