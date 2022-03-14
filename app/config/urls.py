@@ -29,7 +29,7 @@ urlpatterns = [
     path('login/', include('core.login.urls')),
     path('user/', include('core.user.urls')),
     path('asistencia/', include('core.asistencia.urls')),
-    path('reports/', include('core.reports.urls')),
+    # path('reports/', include('core.reports.urls')),
 ]
 
 if settings.DEBUG:
