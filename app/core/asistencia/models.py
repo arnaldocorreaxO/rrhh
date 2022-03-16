@@ -30,11 +30,63 @@ class Reloj(ModeloBase):
 			# connect to remote host			
 			s.connect((host, port))
 			s.close()
-			data['info'] = f"HANDPUNCH {host} - {port} DISPONIBLE"			
+			data['info'] = {'Msg' : f"HANDPUNCH {host} - {port} DISPONIBLE"}
+			# Podemos agregar dos diccionarios en Python y almacenar su combinación 
+			# en un tercer diccionario usando el operador de desempaquetado de diccionario **. 
+			# Este método no cambia los pares clave-valor del diccionario original.
+			# Este operador trabaja desde Python 3.5.
+			data['info'] = {**data['info'],**self.getInfo()}
+			print(data)	
 		except:
 			data['error'] = f"ERROR al intentar conectar con HandPunch {host} - {port}"
 		return data
 		
+	def getInfo(self):
+		import csv
+		import datetime
+		import os
+		try:
+			data={}
+			
+			nombreArchivo = self.ip + '_' + 'reader_info.csv'
+			rutaExe = os.path.join(settings.BASE_DIR,'core','asistencia','handpunch','traeinfo.exe')		
+			print_info('OBTENIENDO INFORMACIONES')
+			os.system(rutaExe + ' ' + self.ip + ' ' + nombreArchivo)		
+			rutaArchivo = os.path.join(settings.BASE_DIR,'registros', nombreArchivo)
+			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '10.67.1.21_23_11_2021_10_05_52.csv')
+			# rutaArchivo ='C:\\Users\\marcacion\\rrhh\\registros\\192.100.100.70_22_12_2021_14_47_45.csv'
+			print(rutaArchivo)
+			if rutaArchivo:
+				with open(rutaArchivo, 'rU') as infile:
+				# read the file as a dictionary for each row ({header : value})
+					reader = csv.DictReader(infile)
+					data = {}
+					nRows = 0 #Nro. de Filas 
+					for row in reader:
+						nRows += 1
+						for header, value in row.items():
+							try:
+								data[header].append(value)
+							except KeyError:
+								data[header] = [value]
+						# extract the variables you want
+				if nRows > 0:
+					print(data)
+					# data['info'] = f'DESCARGA DE DATOS REALIZADA CON ÉXITO\n<br>\n<br> Total Registros: {nRows}'
+						
+				else:
+					msg = "NO SE ENCONTRARON INFORMACIONES DEL DISPOSITIVO"
+					print(msg)
+					data['error'] = msg
+			else:
+				print("NO SE HA ENCONTRADO EL ARCHIVO CSV DE INFORMACIONES")
+				msg = "NO SE ENCONTRARON INFORMACIONES EN EL DISPOSITIVO"
+				data['error'] = msg
+		except Exception as e:
+			print(e)
+			data['error'] = e
+		return data
+
 	def getMarcaciones(self):
 		import csv
 		import datetime
@@ -119,12 +171,12 @@ class Reloj(ModeloBase):
 					data['info'] = f'DESCARGA DE DATOS REALIZADA CON ÉXITO\n<br>{marcacion}\n<br> Total Registros: {nRows}'
 						
 				else:
-					msg = "NO SE ENCONTRARON DATOS EN EL RELOJ"
+					msg = "NO SE ENCONTRARON DATOS EN EL DISPOSITIVO"
 					print(msg)
 					data['error'] = msg
 			else:
 				print("NO SE HA ENCONTRADO EL ARCHIVO CSV")
-				msg = "NO SE ENCONTRARON DATOS EN EL RELOJ"
+				msg = "NO SE ENCONTRARON DATOS EN EL DISPOSITIVO"
 				data['error'] = msg
 		except Exception as e:
 			print(e)
