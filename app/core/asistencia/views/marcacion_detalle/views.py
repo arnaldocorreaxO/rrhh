@@ -21,6 +21,7 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
+		self.suc_usuario = self.request.user.sucursal.id 
 		return super().dispatch(request, *args, **kwargs)
 	
 	def post(self, request, *args, **kwargs):
@@ -71,10 +72,13 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 					# 	_where = " upper(cod ||' '|| fecha ||' '|| hora ) LIKE upper(%s)"
 						# _where = " upper(fecha||' '|| hora||' '||asistencia_reloj.denominacion||' '||asistencia_reloj.ip ) LIKE upper(%s)"
 				print(_where)
-				qs = MarcacionDetalle.objects\
-							  			.filter()\
-										.extra(where=[_where], params=[_search])\
-										.order_by(*_order)
+				if not self.request.user.is_superuser:	
+					qs = MarcacionDetalle.objects.filter(marcacion__sucursal=self.suc_usuario)
+				else:
+					qs = MarcacionDetalle.objects.all()
+				
+				qs = qs.extra(where=[_where], params=[_search])\
+					   .order_by(*_order)
 
 				#Filtrar por Fechas
 				if len(start_date) and len(end_date):			

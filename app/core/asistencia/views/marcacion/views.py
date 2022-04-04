@@ -23,6 +23,7 @@ class MarcacionListView(PermissionMixin, ListView):
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, request, *args, **kwargs):
+		self.suc_usuario = self.request.user.sucursal.id 
 		return super().dispatch(request, *args, **kwargs)
 	
 	def post(self, request, *args, **kwargs):
@@ -78,12 +79,15 @@ class MarcacionListView(PermissionMixin, ListView):
 						_search = "%" + _search.replace(' ', '%') + "%"
 						_where = " upper(fecha||' '|| hora ) LIKE upper(%s)"
 						# _where = " upper(fecha||' '|| hora||' '||asistencia_reloj.denominacion||' '||asistencia_reloj.ip ) LIKE upper(%s)"
+				
+				if not self.request.user.is_superuser:	
+					qs = Marcacion.objects.filter(sucursal=self.suc_usuario)
+				else:
+					qs = Marcacion.objects.all()
+										
 
-				qs = Marcacion.objects\
-                                    .filter()\
-                                    .extra(where=[_where], params=[_search])\
-                                    .order_by(*_order)
-
+				qs = qs.extra(where=[_where], params=[_search])\
+					   .order_by(*_order)
 				# #Pedidos del Año
 				# if len(start_date) and len(end_date):			
 				# 	start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
@@ -125,6 +129,8 @@ class MarcacionListView(PermissionMixin, ListView):
 		context = super().get_context_data(**kwargs)
 		context['create_url'] = reverse_lazy('marcacion_create')
 		context['title'] = 'Listado de Marcaciones '
+		if not self.request.user.is_superuser:
+			context['object_list'] = Marcacion.objects.filter(sucursal=self.suc_usuario)
 		return context
 
 

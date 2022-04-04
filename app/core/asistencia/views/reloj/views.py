@@ -20,6 +20,7 @@ class RelojListView(PermissionMixin, ListView):
  
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
+        self.suc_usuario = self.request.user.sucursal.id 
         return super().dispatch(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
@@ -42,13 +43,12 @@ class RelojListView(PermissionMixin, ListView):
             data['error'] = str(e)
         return HttpResponse(json.dumps(data), content_type='application/json')
 
-    def get_context_data(self, **kwargs):
-        suc_usuario = self.request.user.sucursal.id        
+    def get_context_data(self, **kwargs):         
         context = super().get_context_data(**kwargs)
         context['create_url'] = reverse_lazy('reloj_create')
         context['title'] = 'Listado de Relojes Marcadores'
         if not self.request.user.is_superuser:
-            context['object_list'] = Reloj.objects.filter(sucursal=suc_usuario)
+            context['object_list'] = Reloj.objects.filter(sucursal=self.suc_usuario)
         return context
 
 
