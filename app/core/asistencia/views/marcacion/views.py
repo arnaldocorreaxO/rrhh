@@ -38,7 +38,11 @@ class MarcacionListView(PermissionMixin, ListView):
 				# Llamar en otro procedimiento
 				fec_fin = datetime.datetime.today().strftime("%Y-%m-%d")
 				fec_ini = f"{int(fec_fin[:4]) - 1 }-01-01"		#Inclusive el año anterior, cuando se hace la carga los primeros dias de enero 						
-				data = dbmssql.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
+				#SUCURSAL VALLEMI
+				if marcacion.sucursal.cod == 'VMI':
+					data = dbmssql.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
+				else:
+					data = dbifx.insert_marcaciones(marcacion.id,fec_ini,fec_fin)
 			elif action == 'search_archivos':
 				data = []
 				for det in MarcacionArchivo.objects.filter(marcacion_id=request.POST['id']):
