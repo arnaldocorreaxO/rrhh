@@ -98,11 +98,11 @@ class Reloj(ModeloBase):
 			nombreArchivo = self.ip + '_' + fechaHoraActual + '.csv'
 			rutaExe = os.path.join(settings.BASE_DIR,'core','asistencia','handpunch','traedatos.exe')		
 			print_info('OBTENIENDO MARCACIONES')
-			# os.system(rutaExe + ' ' + self.ip + ' ' + nombreArchivo)		
-			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', nombreArchivo)
+			os.system(rutaExe + ' ' + self.ip + ' ' + nombreArchivo)		
+			rutaArchivo = os.path.join(settings.BASE_DIR,'registros', nombreArchivo)
 			# 192.168.100.9_04_04_2022_13_51_25.csv
 			# 192.168.100.10_04_04_2022_13_53_56.csv
-			rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '192.168.100.10_04_04_2022_13_53_56.csv')
+			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '192.168.100.10_04_04_2022_13_53_56.csv')
 			# rutaArchivo ='C:\\Users\\marcacion\\rrhh\\registros\\192.100.100.70_22_12_2021_14_47_45.csv'
 			print(rutaArchivo)
 			if rutaArchivo:
