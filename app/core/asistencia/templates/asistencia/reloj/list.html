@@ -6,7 +6,7 @@
 
 {% block columns %}
     <th>ID</th>
-    <th>Sede</th>
+    <th>Sucursal</th>
     <th>Denominacion</th>
     <th class="text-center">Opciones</th>
 {% endblock %}
@@ -15,7 +15,7 @@
     {% for i in object_list %}
         <tr>
             <td>{{ i.id }}</td>
-            <td>{{ i.get_sede_display}}</td>
+            <td>{{ i.sucursal.denom_corta}}</td>
             <td>{{ i }}</td> <!--retorna el metodo __str__-->
             <td class="text-center">
                 <!-- <button class="btn btn-info btn-flat btn-xs btnTestConexion mx-1" title="Test Conexión" type="button" value="{{ i.id }}">
