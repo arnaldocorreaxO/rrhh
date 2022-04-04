@@ -25,6 +25,19 @@ POSTGRESQLOCAL = {
     }
 }
 
+POSTGRESQL = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'rrhh',
+        'USER': 'postgres',
+        'PASSWORD': 'ox82',
+        'HOST': '10.130.10.109',
+        'PORT': '5432',
+        'ATOMIC_REQUESTS': True,
+        # 'TIME_ZONE': 'America/Asuncion',
+    }
+}
+
 # mysqlclient
 
 MYSQL = {
