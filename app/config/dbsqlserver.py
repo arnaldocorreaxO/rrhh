@@ -172,7 +172,7 @@ def insert_marcaciones(*args):
         cursor = conn.command_execute(sql, commit=False)
 
         #RESTABLECER VALOR INICIAL DEL ID DE LA TABLA
-        sql+= f"DBCC CHECKIDENT([{table}], RESEED, 1);"
+        sql+= f"DBCC CHECKIDENT([{table}], RESEED, 0);"
         # query(cursor,sql)
         cursor = conn.command_execute(sql, commit=False)
 
@@ -214,7 +214,7 @@ def insert_marcaciones(*args):
         # sql = f"EXECUTE FUNCTION informix.sp_cmt_asis_env_xo('{fecha_desde}', '{fecha_hasta}', 'CM', 'A');"
         print_info('EJECUTANDO PROCEDIMIENTO POR FAVOR ESPERE')
         #sql = "EXECUTE FUNCTION informix.sp_cmt_asis_inc('{0}', '{1}', '{2}', '{3}');".format(*parameters)
-        sql = "EXEC sp_act_asis_inc2"
+        sql = "EXEC sp_act_asis_inc"
         print(sql)        
         # cursor = conn.cursor()
         # cursor.execute(sp)
