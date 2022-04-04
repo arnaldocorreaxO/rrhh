@@ -12,7 +12,7 @@ SQLITE = {
 
 # psycopg2
 
-POSTGRESQL = {
+POSTGRESQLOCAL = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'rrhh',

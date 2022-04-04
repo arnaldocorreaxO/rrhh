@@ -285,7 +285,7 @@ __pycache__/
 */migraciones/*
 **/migrations/*
 */logs/*
-config/*
+#config/*
 */db/*
 staticfiles/*
 factora.sqlite3

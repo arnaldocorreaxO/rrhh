@@ -1,6 +1,6 @@
 from config.utils import *
 from config.utils import print_err, print_info
-from core.base.models import ModeloBase
+from core.base.models import ModeloBase, Sucursal
 from django.core.files import File
 from django.db import models, transaction
 from django.forms.models import model_to_dict
@@ -8,6 +8,7 @@ from django.forms.models import model_to_dict
 
 class Reloj(ModeloBase):	
 	sede = models.CharField(max_length=3,choices=choiceSede(),default='CEN')
+	sucursal = models.ForeignKey(Sucursal,on_delete=models.PROTECT)
 	denominacion = models.CharField(max_length=100,unique=True)
 	ip = models.CharField(max_length=15)
 	puerto = models.CharField(max_length=4)
@@ -191,6 +192,7 @@ class Reloj(ModeloBase):
 
 class Marcacion(ModeloBase):	
 	sede = models.CharField(max_length=3,choices=choiceSede(),default='CEN')
+	sucursal = models.ForeignKey(Sucursal,on_delete=models.PROTECT)
 	fecha= models.DateField()
 	hora = models.TimeField()	
 	procesado = models.BooleanField(default=False)
@@ -199,6 +201,9 @@ class Marcacion(ModeloBase):
 		item = model_to_dict(self)
 		sede = dict(choiceSede())
 		item['sede'] = sede[self.sede] if self.sede else None
+		item['cod_sucursal'] = self.sucursal.cod if self.sucursal.cod else None
+		item['suc_denom_corta'] = self.sucursal.denom_corta if self.sucursal.denom_corta else None
+		item['sucursal'] = str(self.sucursal) if self.sucursal else None
 		item['fecha'] = self.fecha.strftime('%d/%m/%Y') if self.fecha else None
 		item['hora'] = self.hora.strftime('%H:%M:%S') if self.hora else None
 		return item	

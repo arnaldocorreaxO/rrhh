@@ -61,7 +61,7 @@ function getData(all) {
         order: [[0, 'desc'],],
         columns: [
             { data: "id" },
-            { data: "sede" },
+            { data: "suc_denom_corta" },
             { data: "fecha" },
             { data: "hora" },
             // { data: "archivo" },

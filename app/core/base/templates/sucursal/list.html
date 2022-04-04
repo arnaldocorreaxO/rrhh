@@ -2,8 +2,9 @@
 
 {% block columns %}
     <th>ID</th>
-     <th>Denominación</th>
-     <th>Denominación Corta</th>    
+    <th>Cód.</th>
+    <th>Denominación</th>
+    <th>Denominación Corta</th>    
     <th class="text-center">Opciones</th>
 {% endblock %}
 
@@ -11,6 +12,7 @@
     {% for i in object_list %}
         <tr>
             <td>{{ i.id }}</td>
+            <td>{{ i.cod }}</td>
              <td>{{ i.denominacion }}</td>
              <td>{{ i.denominacion_corta }}</td>
             <!-- <td class="text-center">

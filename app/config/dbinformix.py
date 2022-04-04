@@ -51,7 +51,7 @@ def config(*args):
              IFX_SERVICE,\
              IFX_USER,\
              IFX_PASS 
-    print_info('CONEXION A BASE DE DATOS')
+    print_info('PARAMETROS DE CONEXION A BASE DE DATOS')
     print(conStr)
     return conStr    
 
@@ -210,7 +210,8 @@ def insert_marcaciones(*args):
         
         
         #CONECTAR CON INFORMIX SEGUN SEDE
-        sede = marcacion.sede
+        # sede = marcacion.sede
+        sede = marcacion.sucursal.cod
         conn = connect(sede)
         table = 'xcmtas'       
         

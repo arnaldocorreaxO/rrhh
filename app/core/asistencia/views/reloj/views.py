@@ -2,6 +2,7 @@ import json
 
 from config.utils import print_info
 from core.asistencia.forms import Reloj, RelojForm
+from core.base.models import Sucursal
 from core.reports.forms import ReportForm
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
@@ -42,9 +43,12 @@ class RelojListView(PermissionMixin, ListView):
         return HttpResponse(json.dumps(data), content_type='application/json')
 
     def get_context_data(self, **kwargs):
+        suc_usuario = self.request.user.sucursal.id        
         context = super().get_context_data(**kwargs)
         context['create_url'] = reverse_lazy('reloj_create')
         context['title'] = 'Listado de Relojes Marcadores'
+        if not self.request.user.is_superuser:
+            context['object_list'] = Reloj.objects.filter(sucursal=suc_usuario)
         return context
 
 
@@ -90,7 +94,7 @@ class RelojCreateView(PermissionMixin, CreateView):
         context = super().get_context_data()
         context['list_url'] = self.success_url
         context['title'] = 'Nuevo registro de Reloj Marcador'
-        context['action'] = 'add'
+        context['action'] = 'add'        
         return context
 
 

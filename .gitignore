@@ -46,6 +46,7 @@ pydevd*.log
 nodeLanguageServer/**
 nodeLanguageServer.*/**
 dist/**
+
 ###xO###
 *migrations/* 
 *migrations/ 
