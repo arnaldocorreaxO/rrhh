@@ -125,6 +125,7 @@ class Reloj(ModeloBase):
 						if not marcacion:
 							marcacion = Marcacion()
 							marcacion.sede = self.sede
+							marcacion.sucursal = self.sucursal
 							marcacion.fecha = datetime.datetime.today().strftime('%Y-%m-%d')
 							marcacion.hora  = datetime.datetime.now().strftime('%H:%M:%S')	
 							marcacion.save()	

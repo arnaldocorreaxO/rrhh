@@ -35,7 +35,6 @@ class SqlConnection:
             self.results = e
             return self.results
 
-# from bs.models import *
 '''CONFIGURACION DE CONEXION'''
 def config(*args):
     #PARAMETROS DE CONEXION SQLSERVER VALLEMI
@@ -203,7 +202,7 @@ def insert_marcaciones(*args):
         sql = sql[:-1]+";"       
         #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
         print_info('INSERTANDO DATOS POR FAVOR ESPERE')
-        print(sql) #Consume mucho recurso
+        # print(sql) #Consume mucho recurso
         cursor = conn.command_execute(sql, commit=False)        
         #COMMIT TRANS
         conn.commit()
