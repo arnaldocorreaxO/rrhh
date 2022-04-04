@@ -250,8 +250,8 @@ def insert_marcaciones(*args):
         # rce = ddata['rc'] #ROWCOUNT
 
         # PROCESADO
-        # marcacion.procesado = True
-        # marcacion.save()
+        marcacion.procesado = True
+        marcacion.save()
 
         data['info']+="\n<br>\n{}\t".format(str(marcacion.sucursal.denom_corta))
         data['info']+="\n<br>\nTOTAL REGISTROS INSERTADOS\t: {}".format(t) 
