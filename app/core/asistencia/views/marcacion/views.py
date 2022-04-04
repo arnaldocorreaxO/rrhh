@@ -3,6 +3,7 @@ import json
 import math
 
 from config import dbinformix as dbifx
+from config import dbsqlserver as dbmssql
 from config.utils import print_info
 from core.asistencia.forms import MarcacionForm
 from core.asistencia.models import Marcacion, MarcacionArchivo
@@ -37,7 +38,7 @@ class MarcacionListView(PermissionMixin, ListView):
 				# Llamar en otro procedimiento
 				fec_fin = datetime.datetime.today().strftime("%Y-%m-%d")
 				fec_ini = f"{int(fec_fin[:4]) - 1 }-01-01"		#Inclusive el año anterior, cuando se hace la carga los primeros dias de enero 						
-				data = dbifx.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
+				data = dbmssql.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
 			elif action == 'search_archivos':
 				data = []
 				for det in MarcacionArchivo.objects.filter(marcacion_id=request.POST['id']):
