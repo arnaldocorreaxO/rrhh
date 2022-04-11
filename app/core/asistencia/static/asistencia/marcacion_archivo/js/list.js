@@ -62,6 +62,8 @@ function getData(all) {
             { data: "id" },
             { data: "marcacion" },
             { data: "reloj" },
+            { data: "fec_insercion" },
+            { data: "fec_modificacion" },
             { data: "archivo" },
             { data: "id" },
         ],

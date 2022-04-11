@@ -64,6 +64,8 @@ function getData(all) {
             { data: "suc_denom_corta" },
             { data: "fecha" },
             { data: "hora" },
+            { data: "fec_insercion" },
+            { data: "fec_modificacion" },
             // { data: "archivo" },
             { data: "id" },
         ],
@@ -152,6 +154,8 @@ $(function () {
                 {data: "id"},
                 {data: "marcacion"},
                 {data: "reloj"},
+                {data: "fec_insercion"},                
+                {data: "fec_modificacion"},                
                 {data: "archivo"},                
             ],
             columnDefs: [

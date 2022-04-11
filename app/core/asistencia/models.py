@@ -102,7 +102,7 @@ class Reloj(ModeloBase):
 			rutaArchivo = os.path.join(settings.BASE_DIR,'registros', nombreArchivo)
 			# 192.168.100.9_04_04_2022_13_51_25.csv
 			# 192.168.100.10_04_04_2022_13_53_56.csv
-			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '192.168.100.10_04_04_2022_13_53_56.csv')
+			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '10.67.1.23_11_04_2022_13_54_06.csv')
 			# rutaArchivo ='C:\\Users\\marcacion\\rrhh\\registros\\192.100.100.70_22_12_2021_14_47_45.csv'
 			print(rutaArchivo)
 			if rutaArchivo:
@@ -209,6 +209,8 @@ class Marcacion(ModeloBase):
 		item['sucursal'] = str(self.sucursal) if self.sucursal else None
 		item['fecha'] = self.fecha.strftime('%d/%m/%Y') if self.fecha else None
 		item['hora'] = self.hora.strftime('%H:%M:%S') if self.hora else None
+		item['fec_insercion'] = self.fec_insercion.strftime('%d/%m/%Y %H:%M:%S') if self.fec_insercion else None
+		item['fec_modificacion'] = self.fec_modificacion.strftime('%d/%m/%Y %H:%M:%S') if self.fec_modificacion else None
 		return item	
 		
 	def __str__(self):
@@ -256,6 +258,8 @@ class MarcacionArchivo(ModeloBase):
 		item['marcacion'] = str(self.marcacion) if self.marcacion else None
 		item['reloj'] = str(self.reloj) if self.reloj else None
 		item['archivo'] = self.get_archive()
+		item['fec_insercion'] = self.fec_insercion.strftime('%d/%m/%Y %H:%M:%S') if self.fec_insercion else None
+		item['fec_modificacion'] = self.fec_modificacion.strftime('%d/%m/%Y %H:%M:%S') if self.fec_modificacion else None
 		return item
 	
 	def get_archive(self):
