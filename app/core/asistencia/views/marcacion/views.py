@@ -60,10 +60,12 @@ class MarcacionListView(PermissionMixin, ListView):
 				#range(start, stop, step)
 				for i in range(9): 
 					_column_order = f'order[{i}][column]'
-					# print('Column Order:',_column_order)
+					
 					if _column_order in request.POST:					
 						_column_number = request.POST[_column_order]								
 						_order.append(request.POST[f'columns[{_column_number}][data]'].split(".")[0])
+					else:
+						_order =['procesado','fecha']
 					if f'order[{i}][dir]' in request.POST:
 						_dir = request.POST[f'order[{i}][dir]']
 						if (_dir=='desc'):
