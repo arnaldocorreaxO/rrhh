@@ -250,12 +250,12 @@ def insert_marcaciones(*args):
             # 65535 / 68 = 963,75
             # 68 caracteres tiene la instruccion INSERT SQL 
             if i == 950:
-                print (sql)
+                # print (sql)
                 print_info('INSERTANDO DATOS POR FAVOR ESPERE')
                 query(conn,sql)
                 i = 0;sql = ''
         
-        print (sql)
+        # print (sql)
         print_info('INSERTANDO DATOS POR FAVOR ESPERE')
         query(conn,sql)
         
