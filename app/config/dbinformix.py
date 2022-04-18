@@ -224,8 +224,16 @@ def insert_marcaciones(*args):
         qs = MarcacionDetalle.objects\
                              .filter(marcacion = marcacion_id,fecha__range=(fecha_desde,fecha_hasta))\
                              .order_by('cod','fecha','hora')
-        print(qs.query)
+        # print(qs.query)
+         #ELIMINAR MOVIMIENTOS AUXILIARES
+        sql = f"DELETE FROM {table};"
+        query(conn,sql)
+
+        #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
+        
+        i = 0;sql = ''
         for row in qs:
+            i+=1
             row.fecha = row.fecha.strftime('%d-%m-%Y')
             row.hora  = row.hora.strftime('%H:%M')
             # Acá obtenemos si es Entrada o Salida 
@@ -235,20 +243,27 @@ def insert_marcaciones(*args):
             else:
                 tipo = getTipoMarcacion(conn,row.cod,row.fecha,row.hora)
 
-            SetupSqlSet.append(f"INSERT INTO {table} VALUES( 0, '{row.cod}', '{row.fecha}', '{row.hora}','{tipo}','');")
+            # SetupSqlSet.append(f"INSERT INTO {table} VALUES( 0, '{row.cod}', '{row.fecha}', '{row.hora}','{tipo}','');")
+            sql+=f"INSERT INTO {table} VALUES( 0, '{row.cod}', '{row.fecha}', '{row.hora}','{tipo}','');"
+            # -460 Statement length exceeds maximum.
+            # in most cases up to 65,535 characters
+            # 65535 / 68 = 963,75
+            # 68 caracteres tiene la instruccion INSERT SQL 
+            if i == 950:
+                print (sql)
+                print_info('INSERTANDO DATOS POR FAVOR ESPERE')
+                query(conn,sql)
+                i = 0;sql = ''
         
-        #ELIMINAR MOVIMIENTOS AUXILIARES
-        sql = f"DELETE FROM {table};"
-        query(conn,sql)
-
-        #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
+        print (sql)
         print_info('INSERTANDO DATOS POR FAVOR ESPERE')
-
-        i = 0
-        for sql in SetupSqlSet:
-            i += 1
-            print (sql)
-            query(conn,sql)
+        query(conn,sql)
+        
+        # i = 0
+        # for sql in SetupSqlSet:
+        #     i += 1
+        #     print (sql)
+        #     query(conn,sql)
         
         #COMMIT TRANS
         commit(conn)
