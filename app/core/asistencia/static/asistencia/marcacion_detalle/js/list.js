@@ -29,12 +29,14 @@ function getData(all) {
     var parameters = {
         'action': 'search',
         'term': input_term.val(), 
+        'sucursal': select_sucursal.val(), 
         'start_date': input_daterange.data('daterangepicker').startDate.format('YYYY-MM-DD'),
         'end_date': input_daterange.data('daterangepicker').endDate.format('YYYY-MM-DD'),
     };
 
     if (all) {
         input_term.val("");
+        input_sucursal.val("");
         parameters['start_date'] = '';
         parameters['end_date'] = '';
     }
@@ -163,6 +165,7 @@ $(function () {
     link_upd.style.display = 'none';
 
     input_term = $('input[name="term"]');
+    select_sucursal = $('select[name="sucursal"]');
     current_date = new moment().format("YYYY-MM-DD");
     input_daterange = $('input[name="date_range"]');
 

@@ -33,6 +33,7 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 			if action =='search':
 				data=[]
 				term = request.POST['term']		
+				sucursal = request.POST['sucursal'] if 'sucursal' in request.POST else None		
 				start_date = request.POST['start_date']
 				end_date = request.POST['end_date']
 					
@@ -72,10 +73,14 @@ class MarcacionDetalleListView(PermissionMixin, FormView):
 					# 	_where = " upper(cod ||' '|| fecha ||' '|| hora ) LIKE upper(%s)"
 						# _where = " upper(fecha||' '|| hora||' '||asistencia_reloj.denominacion||' '||asistencia_reloj.ip ) LIKE upper(%s)"
 				print(_where)
+				print(sucursal)
 				if not self.request.user.is_superuser:	
 					qs = MarcacionDetalle.objects.filter(marcacion__sucursal=self.suc_usuario)
 				else:
-					qs = MarcacionDetalle.objects.all()
+					if sucursal:
+						qs = MarcacionDetalle.objects.filter(marcacion__sucursal=sucursal)
+					else:
+						qs = MarcacionDetalle.objects.all()
 				
 				qs = qs.extra(where=[_where], params=[_search])\
 					   .order_by(*_order)

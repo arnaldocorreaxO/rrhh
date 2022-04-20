@@ -100,5 +100,7 @@ class SearchForm(forms.Form):
     }))
     # Termino de busqueda
     term = forms.CharField()
+    sucursal = forms.ModelChoiceField(queryset=Sucursal.objects.filter(activo=True), empty_label="(Todos)")
 
+    sucursal.widget.attrs.update({'class': 'form-control select2'})
     term.widget.attrs.update({'class': 'form-control'})
