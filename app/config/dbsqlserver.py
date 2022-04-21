@@ -180,25 +180,23 @@ def insert_marcaciones(*args):
                              .filter(marcacion = marcacion_id,fecha__range=(fecha_desde,fecha_hasta))\
                              .order_by('cod','fecha','hora')
         # print(qs.query)
-        i=0
-        t=0
+        i=0;t=0
         sql+= f"INSERT INTO {table} (legajo,fecha,hora) VALUES"
         for row in qs:
             i+=1
-            t+=1
             row.fecha = row.fecha.strftime('%Y-%m-%d')
-            row.hora  = row.hora.strftime('%H:%M')            
-
+            row.hora  = row.hora.strftime('%H:%M')   
             sql+=f"('{row.cod}', '{row.fecha}', '{row.hora}'),"
             if i == 1000:
                 #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
+                t+=i
                 print_info('INSERTANDO DATOS POR FAVOR ESPERE')
                 sql = sql[:-1]+";"
                 # print(sql) #Consume mucho recurso
                 cursor = conn.command_execute(sql, commit=False)
                 sql+= f"INSERT INTO {table} (legajo,fecha,hora) VALUES"
                 i=0
-
+        t+=i
         sql = sql[:-1]+";"       
         #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
         print_info('INSERTANDO DATOS POR FAVOR ESPERE')

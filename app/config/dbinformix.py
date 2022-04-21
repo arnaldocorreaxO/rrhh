@@ -231,9 +231,9 @@ def insert_marcaciones(*args):
 
         #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
         
-        i = 0;sql = ''
+        i = 0;t=0;sql = ''
         for row in qs:
-            i+=1
+            i+=1            
             row.fecha = row.fecha.strftime('%d-%m-%Y')
             row.hora  = row.hora.strftime('%H:%M')
             # Acá obtenemos si es Entrada o Salida 
@@ -251,11 +251,12 @@ def insert_marcaciones(*args):
             # 68 caracteres tiene la instruccion INSERT SQL 
             if i == 950:
                 # print (sql)
+                t+=i
                 print_info('INSERTANDO DATOS POR FAVOR ESPERE')
                 query(conn,sql)
                 i = 0;sql = ''
         
-        # print (sql)
+        t+=i
         print_info('INSERTANDO DATOS POR FAVOR ESPERE')
         query(conn,sql)
         
@@ -310,7 +311,7 @@ def insert_marcaciones(*args):
         marcacion.save()
 
         data['info']+="\n<br>\n{}\t".format(str(marcacion.sede))
-        data['info']+="\n<br>\nTOTAL REGISTROS INSERTADOS\t:{}".format(i) 
+        data['info']+="\n<br>\nTOTAL REGISTROS INSERTADOS\t:{}".format(t) 
         data['info']+="\n<br>\nTOTAL REGISTROS SELECCIONADOS\t:{}".format(rc)
         data['info']+="\n<br>\nTOTAL REGISTROS CON ERRORES\t:{}".format(rce)
         data['info']+="\n"
