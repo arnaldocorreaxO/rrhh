@@ -96,14 +96,13 @@ class Reloj(ModeloBase):
 			data={}
 			fechaHoraActual = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
 			nombreArchivo = self.ip + '_' + fechaHoraActual + '.csv'
+			# nombreArchivo = '192.168.100.10_25_04_2022_06_30_40.csv'
 			rutaExe = os.path.join(settings.BASE_DIR,'core','asistencia','handpunch','traedatos.exe')		
 			print_info('OBTENIENDO MARCACIONES')
 			os.system(rutaExe + ' ' + self.ip + ' ' + nombreArchivo)		
 			rutaArchivo = os.path.join(settings.BASE_DIR,'registros', nombreArchivo)
-			# 192.168.100.9_04_04_2022_13_51_25.csv
-			# 192.168.100.10_04_04_2022_13_53_56.csv
 			# rutaArchivo = os.path.join(settings.BASE_DIR,'registros', '10.67.1.23_11_04_2022_13_54_06.csv')
-			# rutaArchivo ='C:\\Users\\marcacion\\rrhh\\registros\\192.100.100.70_22_12_2021_14_47_45.csv'
+			# rutaArchivo ='C:\\Users\\marcacion\\rrhh\\registros\\192.168.100.9_25_04_2022_06_27_34.csv'
 			print(rutaArchivo)
 			if rutaArchivo:
 				with open(rutaArchivo, 'rU') as infile:

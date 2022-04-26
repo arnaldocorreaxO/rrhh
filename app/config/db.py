@@ -12,7 +12,7 @@ SQLITE = {
 
 # psycopg2
 
-POSTGRESQLOCAL = {
+PGSQL_LOCALHOST = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'rrhh',
@@ -25,7 +25,7 @@ POSTGRESQLOCAL = {
     }
 }
 
-POSTGRESQL = {
+PGSQL_HOST = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'rrhh',
