@@ -100,7 +100,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0.3/ref/settings/#databases
 
-DATABASES = db.PGSQL_LOCALHOST
+DATABASES = db.PGSQL_HOST
 # Password validation
 # https://docs.djangoproject.com/en/3.0.3/ref/settings/#auth-password-validators
 
