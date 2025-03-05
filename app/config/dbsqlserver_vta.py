@@ -40,7 +40,7 @@ def config(*args):
     #PARAMETROS DE CONEXION SQLSERVER VALLEMI
 
     MSSQL_DRIVER = 'ODBC Driver 17 for SQL Server'
-    MSSQL_SERVER = '10.130.11.20'
+    MSSQL_SERVER = '192.168.100.48'
     MSSQL_DB = 'db_inc'
     MSSQL_USER='intranet'
     MSSQL_PASS='tic2019*'

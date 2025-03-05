@@ -74,16 +74,44 @@ function getData(all) {
                 targets: [-1],
                 class: 'text-center',
                 render: function (data, type, row) {
-                    var buttons = '';
-                    btnClass = "btn btn-secondary btn-flat disabled_load_data"
-                    if (!row.procesado) {
-                        btnClass = "btn btn-primary btn-flat"           
-                    }                                       
-                    buttons += '<a href="#" rel="load" class="' + btnClass + '" value="' + row.id + '"data-toggle="tooltip" title="Insertar Datos"><i class="fas fa-upload"></i></a> ';
-                    buttons += '<a class="btn btn-primary  btn-flat" data-toggle="tooltip" title="Detalles" rel="detail"><i class="fas fa-folder-open"></i></a> ';
-                    buttons += '<a href="/asistencia/marcacion/update/' + row.id + '/" class="btn btn-warning btn-flat" data-toggle="tooltip" title="Editar"><i class="fas fa-edit"></i></a> ';
-                    buttons += '<a href="/asistencia/marcacion/delete/' + row.id + '/" class="btn btn-danger btn-flat" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></a> ';
-                    return buttons;
+                    // var buttons = '';
+                    // btnClass = "btn btn-secondary btn-flat disabled_load_data"
+                    // if (!row.procesado) {
+                    //     btnClass = "btn btn-primary btn-flat"  
+                    // };  
+                    // if (row.suc_denom_corta.includes("CIP")) {
+                    //     buttons += '<a href="#" rel="load2" class="btn btn-primary  btn-flat" value="' + row.id + '"data-toggle="tooltip" title="Insertar Datos MSSQL Villeta"><i class="fas fa-cloud-upload-alt"></i></a> ';
+                    // }else {
+                    //     buttons += '<a href="#" rel="#" class="' + btnClass + '" value="#" data-toggle="tooltip" title="#"><i class="fas fa-cloud-upload-alt"></i></a> ';
+                    // }                 
+                    // buttons += '<a href="#" rel="load1" class="' + btnClass + '" value="' + row.id + '"data-toggle="tooltip" title="Insertar Datos Informix"><i class="fas fa-upload"></i></a> ';                                                          
+                    // buttons += '<a class="btn btn-primary  btn-flat" data-toggle="tooltip" title="Detalles" rel="detail"><i class="fas fa-folder-open"></i></a> ';
+                    // buttons += '<a href="/asistencia/marcacion/update/' + row.id + '/" class="btn btn-warning btn-flat" data-toggle="tooltip" title="Editar"><i class="fas fa-edit"></i></a> ';
+                    // buttons += '<a href="/asistencia/marcacion/delete/' + row.id + '/" class="btn btn-danger btn-flat" data-toggle="tooltip" title="Eliminar"><i class="fas fa-trash"></i></a> ';
+                    // return buttons;
+                    function createButton(href, className, title, iconClass, rel, value) {
+                        return `<a href="${href}" rel="${rel}" class="${className}" value="${value}" data-toggle="tooltip" title="${title}">
+                                    <i class="${iconClass}"></i>
+                                </a> `;
+                    }
+                    
+                    // function generateButtons(row) {
+                        let buttons = '';
+                        let btnClass = row.procesado ? "btn btn-secondary btn-flat disabled_load_data" : "btn btn-primary btn-flat";
+                    
+                        if (row.suc_denom_corta.includes("CIP")) {
+                            buttons += createButton("#", "btn btn-info btn-flat", "Insertar Datos MSSQL Villeta", "fas fa-cloud-upload-alt", "load2", row.id);
+                        } else {
+                            buttons += createButton("#", btnClass, "#", "fas fa-cloud-upload-alt", "#", "#");
+                        }
+                    
+                        buttons += createButton("#", btnClass, "Insertar Datos Informix", "fas fa-upload", "load1", row.id);
+                        buttons += createButton("#", "btn btn-primary btn-flat", "Detalles", "fas fa-folder-open", "detail", "");
+                        buttons += createButton(`/asistencia/marcacion/update/${row.id}/`, "btn btn-warning btn-flat", "Editar", "fas fa-edit", "", "");
+                        buttons += createButton(`/asistencia/marcacion/delete/${row.id}/`, "btn btn-danger btn-flat", "Eliminar", "fas fa-trash", "", "");
+                    
+                        return buttons;
+                    // }
                 }
             },
         ],
@@ -121,12 +149,23 @@ $(function () {
         getData(true);
     });
 
+    // Cargar datos de marcacion Informix Central, Informix Villeta y MSSQL Vallemi (Vallemi no utiliza Informix)
     $('#data tbody')
-    .on('click', 'a[rel="load"]', function (e) {
+    .on('click', 'a[rel="load1"]', function (e) {
         e.preventDefault(); 
         var tr = tblData.cell($(this).closest('td, li')).index();
         var data = tblData.row(tr.row).data();
         loadData(data.id)
+        return false; 
+    });
+
+    // Cargar datos de marcacion MSSQL Villeta (Villeta utiliza Informix que se carga en el loadData anterior)
+    $('#data tbody')
+    .on('click', 'a[rel="load2"]', function (e) {
+        e.preventDefault(); 
+        var tr = tblData.cell($(this).closest('td, li')).index();
+        var data = tblData.row(tr.row).data();
+        loadDataMSSQLVilleta(data.id)
         return false; 
     });
 
@@ -183,6 +222,25 @@ function loadData(id) {
     /*Inserta los datos de marcacion en Informix*/
     var parameters = {
         'action': 'load_data',
+        'marcacion_id': id,
+    };
+    submit_with_ajax_loading('Notificación',
+        '¿Estas seguro desea cargar los datos de la Marcación?',
+        window.location.pathname,
+        parameters,
+        function (data) {
+            if (!data.hasOwnProperty('error')) {
+                message_success(data.info)
+                tblData.draw('page');
+                return false;
+            };
+        });
+};
+
+function loadDataMSSQLVilleta(id) {
+    /*Inserta los datos de marcacion en Informix*/
+    var parameters = {
+        'action': 'load_data_to_mssql_villeta',
         'marcacion_id': id,
     };
     submit_with_ajax_loading('Notificación',

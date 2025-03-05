@@ -4,6 +4,7 @@ import math
 
 from config import dbinformix as dbifx
 from config import dbsqlserver as dbmssql
+from config import dbsqlserver as dbmssql_villeta
 from config.utils import print_info
 from core.asistencia.forms import MarcacionForm
 from core.asistencia.models import Marcacion, MarcacionArchivo
@@ -26,24 +27,43 @@ class MarcacionListView(PermissionMixin, ListView):
 		self.suc_usuario = self.request.user.sucursal.id 
 		return super().dispatch(request, *args, **kwargs)
 	
+	def get_fecha_inicial(self):
+		import datetime
+		"""Devuelve la fecha inicial como el primer día del año anterior y la fecha final actual."""
+		fec_fin = datetime.datetime.today().strftime("%Y-%m-%d")
+		fec_ini = f"{int(fec_fin[:4]) - 1}-01-01"  # Inclusive el año anterior
+		return fec_ini, fec_fin
+
+	def load_data(self,marcacion_id, sucursal_cod):
+		"""Carga los datos de marcaciones según la sucursal."""
+		fec_ini, fec_fin = self.get_fecha_inicial()
+		if sucursal_cod == 'VMI':
+			return dbmssql.insert_marcaciones(marcacion_id,fec_ini,fec_fin) 
+		else:
+			return dbifx.insert_marcaciones(marcacion_id,fec_ini,fec_fin)
+	
+	def load_data_to_mssql_villeta(self,marcacion_id, sucursal_cod):
+		"""Carga los datos de marcaciones según la sucursal."""
+		fec_ini, fec_fin = self.get_fecha_inicial()
+		if sucursal_cod == 'VTA':
+			return dbmssql_villeta.insert_marcaciones(marcacion_id,fec_ini,fec_fin) 
+		return None		
+
 	def post(self, request, *args, **kwargs):
 		data = {}
-		# print(request.POST)
-		action = request.POST['action']
-		marcacion_id = request.POST['marcacion_id'] if 'marcacion_id' in request.POST else None
+		action = request.POST.get('action')
+		marcacion_id = request.POST.get('marcacion_id')
+
 		try:
-			if action == 'load_data':
-				import datetime
-				marcacion = Marcacion.objects.filter(id=marcacion_id).first()                
+			if action in ['load_data', 'load_data_to_mssql_villeta']:
+				marcacion = Marcacion.objects.filter(id=marcacion_id).first()
 				print_info(str(marcacion))
-				# Llamar en otro procedimiento
-				fec_fin = datetime.datetime.today().strftime("%Y-%m-%d")
-				fec_ini = f"{int(fec_fin[:4]) - 1 }-01-01"		#Inclusive el año anterior, cuando se hace la carga los primeros dias de enero 						
-				#SUCURSAL VALLEMI
-				if marcacion.sucursal.cod == 'VMI':
-					data = dbmssql.insert_marcaciones(marcacion.id,fec_ini,fec_fin) 
-				else:
-					data = dbifx.insert_marcaciones(marcacion.id,fec_ini,fec_fin)
+
+				if action == 'load_data':
+					data = self.load_data(marcacion.id, marcacion.sucursal.cod)
+				elif action == 'load_data_to_mssql_villeta':
+					data = self.load_data_to_mssql_villeta(marcacion.id, marcacion.sucursal.cod)
+
 			elif action == 'search_archivos':
 				data = []
 				for det in MarcacionArchivo.objects.filter(marcacion_id=request.POST['id']):
