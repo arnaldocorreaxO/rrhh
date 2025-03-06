@@ -34,35 +34,30 @@ class MarcacionListView(PermissionMixin, ListView):
 		fec_ini = f"{int(fec_fin[:4]) - 1}-01-01"  # Inclusive el año anterior
 		return fec_ini, fec_fin
 
-	def load_data(self,marcacion_id, sucursal_cod):
+	def load_data(self,tipo,marcacion_id, sucursal_cod):
 		"""Carga los datos de marcaciones según la sucursal."""
 		fec_ini, fec_fin = self.get_fecha_inicial()
-		if sucursal_cod == 'VMI':
-			return dbmssql.insert_marcaciones(marcacion_id,fec_ini,fec_fin) 
-		else:
-			return dbifx.insert_marcaciones(marcacion_id,fec_ini,fec_fin)
+		if tipo == 'INFORMIX':
+			if sucursal_cod == 'VMI':
+				return dbmssql.insert_marcaciones(marcacion_id,fec_ini,fec_fin) #Vallemi
+			else:
+				return dbifx.insert_marcaciones(marcacion_id,fec_ini,fec_fin) 	#Central y Villeta
+			
+		elif tipo=='MSSQL_VILLETA':
+			return dbmssql.insert_marcaciones(marcacion_id,fec_ini,fec_fin)		#Villeta 
 	
-	def load_data_to_mssql_villeta(self,marcacion_id, sucursal_cod):
-		"""Carga los datos de marcaciones según la sucursal."""
-		fec_ini, fec_fin = self.get_fecha_inicial()
-		if sucursal_cod == 'VTA':
-			return dbmssql_villeta.insert_marcaciones(marcacion_id,fec_ini,fec_fin) 
-		return None		
-
 	def post(self, request, *args, **kwargs):
 		data = {}
 		action = request.POST.get('action')
 		marcacion_id = request.POST.get('marcacion_id')
-
+		tipo = request.POST.get('tipo')
 		try:
 			if action in ['load_data', 'load_data_to_mssql_villeta']:
 				marcacion = Marcacion.objects.filter(id=marcacion_id).first()
 				print_info(str(marcacion))
 
-				if action == 'load_data':
-					data = self.load_data(marcacion.id, marcacion.sucursal.cod)
-				elif action == 'load_data_to_mssql_villeta':
-					data = self.load_data_to_mssql_villeta(marcacion.id, marcacion.sucursal.cod)
+			if action == 'load_data':
+				data = self.load_data(tipo,marcacion.id, marcacion.sucursal.cod)
 
 			elif action == 'search_archivos':
 				data = []

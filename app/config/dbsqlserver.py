@@ -35,27 +35,95 @@ class SqlConnection:
             self.results = e
             return self.results
 
-'''CONFIGURACION DE CONEXION'''
+# '''CONFIGURACION DE CONEXION'''
+# def config(cod,*args):
+#     if cod == 'VMI':
+#         #PARAMETROS DE CONEXION SQLSERVER VALLEMI
+
+#         MSSQL_DRIVER = 'ODBC Driver 17 for SQL Server'
+#         MSSQL_SERVER = '192.168.100.48'
+#         MSSQL_DB = 'db_inc'
+#         MSSQL_USER='intranet'
+#         MSSQL_PASS='tic2019*'
+#         #MSSQL_USER='sa'
+#         #MSSQL_PASS='AreaTic22*'
+
+#         conStr = MSSQL_DRIVER,\
+#         MSSQL_SERVER,\
+#         MSSQL_DB,\
+#         MSSQL_USER,\
+#         MSSQL_PASS
+
+#         print_info('PARAMETROS DE CONEXION A BASE DE DATOS')
+#         print(conStr)
+#         return conStr     
+#     if cod=='VTA':
+#         #PARAMETROS DE CONEXION SQLSERVER VALLEMI
+
+#         MSSQL_DRIVER = 'ODBC Driver 17 for SQL Server'
+#         MSSQL_SERVER = '10.130.11.20'
+#         MSSQL_DB = 'db_inc'
+#         MSSQL_USER='intranet'
+#         MSSQL_PASS='tic2019*'
+#         #MSSQL_USER='sa'
+#         #MSSQL_PASS='AreaTic22*'
+
+#         conStr = MSSQL_DRIVER,\
+#                 MSSQL_SERVER,\
+#                 MSSQL_DB,\
+#                 MSSQL_USER,\
+#                 MSSQL_PASS
+
+#         print_info('PARAMETROS DE CONEXION A BASE DE DATOS')
+#         print(conStr)
+#         return conStr   
+    
 def config(*args):
-    #PARAMETROS DE CONEXION SQLSERVER VALLEMI
+    """Configuración de conexión a la base de datos según el código de sucursal."""
+    
+    if not args:
+        print("Error: No se proporcionó el código de sucursal.")
+        return None
 
+    cod = args[0]  # Obtener el código de sucursal del primer argumento
+
+    # Parámetros de conexión comunes
     MSSQL_DRIVER = 'ODBC Driver 17 for SQL Server'
-    MSSQL_SERVER = '10.130.11.20'
-    MSSQL_DB = 'db_inc'
-    MSSQL_USER='intranet'
-    MSSQL_PASS='tic2019*'
-    #MSSQL_USER='sa'
-    #MSSQL_PASS='AreaTic22*'
 
-    conStr = MSSQL_DRIVER,\
-             MSSQL_SERVER,\
-             MSSQL_DB,\
-             MSSQL_USER,\
-             MSSQL_PASS
+    # Diccionario para almacenar los parámetros de conexión según el código
+    connection_params = {
+        'VMI': {
+            'server': '192.168.100.48',
+            'db': 'db_inc',
+            'user': 'intranet',  # Reemplaza con el nombre de usuario real para VMI
+            'password': 'tic2019*'  # Reemplaza con la contraseña real para VMI
+        },
+        'VTA': {
+            'server': '10.130.11.20',
+            'db': 'db_inc',
+            'user': 'intranet',  # Reemplaza con el nombre de usuario real para VTA
+            'password': 'tic2019*'  # Reemplaza con la contraseña real para VTA
+        }
+    }
 
-    print_info('PARAMETROS DE CONEXION A BASE DE DATOS')
-    print(conStr)
-    return conStr    
+    # Verificar si el código está en el diccionario
+    if cod in connection_params:
+        params = connection_params[cod]
+        conStr = (
+            MSSQL_DRIVER,
+            params['server'],
+            params['db'],
+            params['user'],
+            params['password']
+        )
+
+        print_info('PARAMETROS DE CONEXION A BASE DE DATOS')
+        print(conStr)
+        return conStr
+
+    # Si el código no es válido, se puede manejar el error aquí
+    print(f"Error: Código de sucursal '{cod}' no reconocido.")
+    return None
 
 
 '''OBTENEMOS TIPO DE MARCACION E/S SEGUN TURNO Y HORARIO'''
@@ -161,7 +229,7 @@ def insert_marcaciones(*args):
         
         #CONECTAR CON MSSQL  
         print_info('INTENTANDO CONECTAR')
-        conn = SqlConnection(cnn_string="DRIVER={%s};SERVER=%s;DATABASE=%s;UID=%s;PWD=%s;" %(config()))
+        conn = SqlConnection(cnn_string="DRIVER={%s};SERVER=%s;DATABASE=%s;UID=%s;PWD=%s;" %(config(marcacion.sucursal.cod)))
         # conn = connect()
         # cursor = conn.cursor()
         table = 'astmp'       
