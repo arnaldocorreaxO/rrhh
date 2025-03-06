@@ -52,7 +52,7 @@ class MarcacionListView(PermissionMixin, ListView):
 		marcacion_id = request.POST.get('marcacion_id')
 		tipo = request.POST.get('tipo')
 		try:
-			if action in ['load_data', 'load_data_to_mssql_villeta']:
+			if action in ['load_data']:
 				marcacion = Marcacion.objects.filter(id=marcacion_id).first()
 				print_info(str(marcacion))
 
