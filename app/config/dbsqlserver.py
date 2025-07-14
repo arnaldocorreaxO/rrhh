@@ -251,12 +251,12 @@ def insert_marcaciones(*args):
                              .order_by('cod','fecha','hora')
         # print(qs.query)
         i=0;t=0
-        sql+= f"INSERT INTO {table} (legajo,fecha,hora) VALUES"
+        sql+= f"INSERT INTO {table} (legajo,fecha,hora,EntSal) VALUES"
         for row in qs:
             i+=1
             row.fecha = row.fecha.strftime('%Y-%m-%d')
             row.hora  = row.hora.strftime('%H:%M')   
-            sql+=f"('{row.cod}', '{row.fecha}', '{row.hora}'),"
+            sql+=f"('{row.cod}', '{row.fecha}', '{row.hora}','{row.tipo}'),"
             if i == 1000:
                 #INSERTA EN TABLA TEMPORAL PARA MARCACIONES ANTES DE LLAMAR AL PROCEDIMIENTO
                 t+=i

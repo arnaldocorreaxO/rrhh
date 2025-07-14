@@ -13,9 +13,9 @@ def config(*args):
     IFX_CEN_DB = 'pl4sjasu'
     # IFX_CEN_DB = 'pl4prueba'
     #VILLETA
-    IFX_VTA_HOST = IFX_CEN_HOST #'192.100.100.8'
-    IFX_VTA_SERVER = IFX_CEN_SERVER #'ol_platino'
-    IFX_VTA_SERVICE = IFX_CEN_SERVICE #'1530'
+    IFX_VTA_HOST = '192.100.100.8'
+    IFX_VTA_SERVER = 'ol_platino'
+    IFX_VTA_SERVICE = '1530'
     IFX_VTA_DB = 'pl4sjpvi'
     #VALLEMI
     IFX_VMI_HOST = '192.168.100.7'
@@ -35,14 +35,14 @@ def config(*args):
 
     sede = args[0]
     if sede=='VTA':
-        IFX_HOST = IFX_VTA_HOST
-        IFX_SERVER = IFX_VTA_SERVER
-        IFX_SERVICE = IFX_VTA_SERVICE
+        # IFX_HOST = IFX_VTA_HOST
+        # IFX_SERVER = IFX_VTA_SERVER
+        # IFX_SERVICE = IFX_VTA_SERVICE
         IFX_DB = IFX_VTA_DB
     elif sede=='VMI':
-        IFX_HOST = IFX_VMI_HOST
-        IFX_SERVER = IFX_VMI_SERVER
-        IFX_SERVICE = IFX_VMI_SERVICE
+        # IFX_HOST = IFX_VMI_HOST
+        # IFX_SERVER = IFX_VMI_SERVER
+        # IFX_SERVICE = IFX_VMI_SERVICE
         IFX_DB = IFX_VMI_DB
 
     conStr = IFX_SERVER,\
