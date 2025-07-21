@@ -264,7 +264,7 @@ def insert_marcaciones(*args):
                 sql = sql[:-1]+";"
                 # print(sql) #Consume mucho recurso
                 cursor = conn.command_execute(sql, commit=False)
-                sql+= f"INSERT INTO {table} (legajo,fecha,hora) VALUES"
+                sql+= f"INSERT INTO {table} (legajo,fecha,hora,EntSal) VALUES"
                 i=0
         t+=i
         sql = sql[:-1]+";"       
