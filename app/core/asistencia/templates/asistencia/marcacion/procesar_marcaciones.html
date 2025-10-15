@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Procesar marcaciones</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2em;
+    }
+
+    .form-column {
+    flex: 1 1 0%;
+    min-width: 280px;
+    }
+
+    .output-column {
+    flex: 3 1 0%;
+    min-width: 280px;
+    }
+
+
+
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+
+    input, button, textarea {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.5em;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      height: 100%;
+      min-height: 300px;
+      resize: vertical;
+      font-family: monospace;
+      background-color: #f9f9f9;
+    }
+
+    button {
+      margin-top: 1.5em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕒 Procesar marcaciones</h1>
+
+  <div class="container">
+    <!-- Columna de filtros -->
+    <div class="form-column">
+      <form method="post" action="{% url 'procesar_marcaciones_stream' %}">
+        {% csrf_token %}
+
+        <label for="fecha_desde">📅 Fecha desde:</label>
+        <input type="date" name="fecha_desde" id="fecha_desde" required>
+
+
+        <label for="fecha_hasta">📅 Fecha hasta:</label>
+        <input type="date" name="fecha_hasta" id="fecha_hasta" required>
+
+
+        <button type="submit">Procesar</button>
+      </form>
+    </div>
+
+    <!-- Columna de resultados -->
+    <div class="output-column">
+      <label for="resultado">📋 Resultado del procesamiento:</label>
+      <textarea id="resultado" name="resultado" readonly></textarea>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+   const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
+
+    const fechaDesde = document.getElementById("fecha_desde");
+    const fechaHasta = document.getElementById("fecha_hasta");
+
+    if (fechaDesde && fechaHasta) {
+      fechaDesde.value = `${yyyy}-${mm}-01`;
+      fechaHasta.value = `${yyyy}-${mm}-${dd}`;
+    } else {
+      console.warn("❗ Los campos de fecha no están presentes en el DOM.");
+    }
+
+
+    // 📤 Manejar envío del formulario
+    const form = document.querySelector("form");
+    const textarea = document.getElementById("resultado");
+
+    if (form && textarea) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        textarea.value = "⏳ Procesando...\n";
+
+        const formData = new FormData(form);
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+        }).then(response => {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+
+          function read() {
+            reader.read().then(({ done, value }) => {
+              if (done) return;
+              textarea.value += decoder.decode(value);
+              textarea.scrollTop = textarea.scrollHeight;
+              read();
+            });
+          }
+
+          read();
+        }).catch(error => {
+          textarea.value += `❌ Error de red: ${error}\n`;
+        });
+      });
+    }
+  });
+</script>
+
+
+</body>
+</html>

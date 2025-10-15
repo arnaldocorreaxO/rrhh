@@ -98,7 +98,7 @@ def config(*args):
             'user': 'intranet',  # Reemplaza con el nombre de usuario real para VMI
             'password': 'tic2019*'  # Reemplaza con la contraseña real para VMI
         },
-        'VTA': {
+    'VTA': {
             'server': '10.130.11.20',
             'db': 'db_inc',
             'user': 'intranet',  # Reemplaza con el nombre de usuario real para VTA
