@@ -1,8 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'list.html' %}
+{% load static %}
+{% comment %} {% block head_list %} {% endcomment %}
+    {% block head_list %}
+{% comment %} <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Procesar marcaciones</title>
+  <title>Procesar marcaciones</title> {% endcomment %}
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -93,10 +96,16 @@
       }
     }
   </style>
-</head>
-<body>
+{% comment %} </head> {% endcomment %}
+    {% comment %} {% endblock %} {% endcomment %}
+{% endblock %}
 
-  <h1>🕒 Procesar marcaciones</h1>
+{% block content %}
+
+
+{% comment %} <body> {% endcomment %}
+
+  <h3>🕒 Procesar marcaciones</h3>
 
   <div class="container">
     <!-- Columna de filtros -->
@@ -184,5 +193,6 @@
                 });
             });
         </script>
-</body>
-</html>
+{% comment %} </body>
+</html> {% endcomment %}
+{%endblock %}
