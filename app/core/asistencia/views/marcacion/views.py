@@ -290,6 +290,7 @@ def procesar_marcaciones_stream(request):
 		tabla_temporal = "xcmtas"
 		procedimiento = "informix.sp_cmt_asis_inc"
 
+		sede = request.POST.get("sede")
 		fecha_desde = request.POST.get("fecha_desde")
 		fecha_hasta = request.POST.get("fecha_hasta")
 
@@ -307,9 +308,10 @@ def procesar_marcaciones_stream(request):
 			return
 
 		try:
-			cen_conn = connect("CEN")
+			cen_conn = connect(sede)
+			yield f"🔌 Conexión exitosa a {sede}\n"
 		except Exception as e:
-			yield f"❌ Error al conectar con CENTRAL: {e}\n"
+			yield f"❌ Error al conectar con {sede}: {e}\n"
 			return
 		
 		# 🔄 Delete masivo en tabla temporal
@@ -320,7 +322,7 @@ def procesar_marcaciones_stream(request):
 			execute(cen_conn, sql_delete_central)			
 			yield f"📥 Delete masivo en tabla {tabla_temporal}\n"
 		except Exception as e:
-			yield f"❌ Error en delete masivo tabla {tabla_temporal} CENTRAL: {e}\n"
+			yield f"❌ Error en delete masivo tabla {tabla_temporal} {sede}: {e}\n"
 			return
 		
 		# 🔄 Insert masivo con filtro de fechas
@@ -338,7 +340,7 @@ def procesar_marcaciones_stream(request):
 			commit(cen_conn)			
 			yield f"📥 Insert masivo realizado entre {f_desde} y {f_hasta}\n"
 		except Exception as e:
-			yield f"❌ Error en insert masivo CENTRAL: {e}\n"
+			yield f"❌ Error en insert masivo {sede}: {e}\n"
 			return
 
 		# ✅ Actualizar estado
@@ -353,16 +355,16 @@ def procesar_marcaciones_stream(request):
 			commit(cen_conn)
 			yield f"✔ Estado actualizado a 'V' entre {f_desde} y {f_hasta}\n"
 		except Exception as e:
-			yield f"❌ Error al actualizar estado en CENTRAL: {e}\n"
+			yield f"❌ Error al actualizar estado en {sede}: {e}\n"
 			return
 
 		# 🚀 Ejecutar procedimiento
 		try:
 			execute_sp(cen_conn, f"""EXECUTE FUNCTION informix.sp_cmt_asis_inc('{f_desde}', '{f_hasta}','CM','A')""")
 			commit(cen_conn)
-			yield f"🚀 Ejecutado con éxito {procedimiento} en CENTRAL\n"
+			yield f"🚀 Ejecutado con éxito {procedimiento} en {sede}\n"
 		except Exception as e:
-			yield f"❌ Error al ejecutar {procedimiento} en CENTRAL: {e}\n"
+			yield f"❌ Error al ejecutar {procedimiento} en {sede}: {e}\n"
 			return
 		# 📊 Conteo de registros procesados y errores
 		
@@ -389,61 +391,62 @@ def procesar_marcaciones_stream(request):
 		try:
 			close(None, cen_conn)
 		except Exception as e:
-			yield f"⚠️ Error al cerrar conexión CENTRAL: {e}\n"
+			yield f"⚠️ Error al cerrar conexión {sede}: {e}\n"
 
 	return StreamingHttpResponse(event_stream(), content_type='text/plain')
 
 
 # ✅ Verificar si hay marcaciones nuevas sin procesar
 def verificar_marcaciones(request):
-    def event_stream():
-        tabla_origen = "xcmtas_tr"
+	def event_stream():
+		tabla_origen = "xcmtas_tr"
+		sede = request.POST.get("sede")
+		fecha_desde = request.POST.get("fecha_desde")
+		fecha_hasta = request.POST.get("fecha_hasta")
 
-        fecha_desde = request.POST.get("fecha_desde")
-        fecha_hasta = request.POST.get("fecha_hasta")
+		if not fecha_desde or not fecha_hasta:
+			yield "❌ Faltan fechas de filtro\n"
+			return
 
-        if not fecha_desde or not fecha_hasta:
-            yield "❌ Faltan fechas de filtro\n"
-            return
+		try:
+			f_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").strftime('%d/%m/%Y')
+			f_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").strftime('%d/%m/%Y')
+			yield f"📅 Verificando marcaciones entre {f_desde} y {f_hasta}\n"
+		except Exception as e:
+			yield f"❌ Error en formato de fechas: {e}\n"
+			return
 
-        try:
-            f_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").strftime('%d/%m/%Y')
-            f_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").strftime('%d/%m/%Y')
-            yield f"📅 Verificando marcaciones entre {f_desde} y {f_hasta}\n"
-        except Exception as e:
-            yield f"❌ Error en formato de fechas: {e}\n"
-            return
+		try:
+			cen_conn = connect(sede)
+			yield f"🔌 Conexión exitosa a {sede}\n"
+		except Exception as e:
+			yield f"❌ Error al conectar con {sede}: {e}\n"
+			return
 
-        try:
-            cen_conn = connect("CEN")
-        except Exception as e:
-            yield f"❌ Error al conectar con CENTRAL: {e}\n"
-            return
+		try:
+			sql_verificar = f"""
+				SELECT COUNT(*) AS rc
+				FROM {tabla_origen}
+				WHERE proces = 'F'
+				  AND nume_tarj IS NOT NULL
+				  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
+				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+			"""
+			stmt = execute(cen_conn, sql_verificar)
+			data = IfxPy.fetch_assoc(stmt)
+			rc = int(data['rc'])
 
-        try:
-            sql_verificar = f"""
-                SELECT COUNT(*) AS rc
-                FROM {tabla_origen}
-                WHERE proces = 'F'
-                  AND nume_tarj IS NOT NULL
-                  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
-                  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
-            """
-            stmt = execute(cen_conn, sql_verificar)
-            data = IfxPy.fetch_assoc(stmt)
-            rc = int(data['rc'])
+			if rc > 0:
+				yield f"✅ Hay {rc} marcacione(s) nuevas para procesar\n"
+			else:
+				yield f"ℹ️ No hay marcaciones nuevas en el rango seleccionado\n"
 
-            if rc > 0:
-                yield f"✅ Hay {rc} marcacione(s) nuevas para procesar\n"
-            else:
-                yield f"ℹ️ No hay marcaciones nuevas en el rango seleccionado\n"
+		except Exception as e:
+			yield f"❌ Error al verificar marcaciones: {e}\n"
+		finally:
+			try:
+				close(None, cen_conn)
+			except Exception as e:
+				yield f"⚠️ Error al cerrar conexión {sede}: {e}\n"
 
-        except Exception as e:
-            yield f"❌ Error al verificar marcaciones: {e}\n"
-        finally:
-            try:
-                close(None, cen_conn)
-            except Exception as e:
-                yield f"⚠️ Error al cerrar conexión CENTRAL: {e}\n"
-
-    return StreamingHttpResponse(event_stream(), content_type='text/plain')
+	return StreamingHttpResponse(event_stream(), content_type='text/plain')
