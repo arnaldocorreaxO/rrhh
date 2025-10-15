@@ -314,6 +314,16 @@ def procesar_marcaciones_stream(request):
 			yield f"❌ Error al conectar con {sede}: {e}\n"
 			return
 		
+		if sede == "CEN":
+			filtro_tarj = "('CE','CO')"
+		elif sede == "VTA":
+			filtro_tarj = "('VI')"
+		elif sede == "VMI":
+			filtro_tarj = "('VA')"
+		else:
+			yield f"❌ Sede desconocida: {sede}\n"
+			return
+		
 		# 🔄 Delete masivo en tabla temporal
 		try:
 			sql_delete_central = f"""
@@ -327,18 +337,19 @@ def procesar_marcaciones_stream(request):
 		
 		# 🔄 Insert masivo con filtro de fechas
 		try:
-			sql_insert_central = f"""
+			sql_insert = f"""
 				INSERT INTO {tabla_temporal} (noid, nume_tarj, ddma_emis, hora, entr_sali)
 				SELECT DISTINCT noid, SUBSTR(nume_tarj, 3, 4), ddma_emis, hora, fn_tipo_marcacion(SUBSTR(nume_tarj, 3, 4),ddma_emis, hora) AS entr_sali
 				FROM xcmtas_tr
 				WHERE proces = 'F'
 				  AND nume_tarj IS NOT NULL
-				  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
+				  AND SUBSTR(nume_tarj, 1, 2) IN {filtro_tarj}
 				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
 			"""
-			execute(cen_conn, sql_insert_central)
+			execute(cen_conn, sql_insert)
 			commit(cen_conn)			
 			yield f"📥 Insert masivo realizado entre {f_desde} y {f_hasta}\n"
+			
 		except Exception as e:
 			yield f"❌ Error en insert masivo {sede}: {e}\n"
 			return
@@ -372,8 +383,8 @@ def procesar_marcaciones_stream(request):
 			# Total seleccionados en tabla temporal
 			sql_rc = f"SELECT COUNT(*) AS rc FROM {tabla_temporal}"
 			stmt = execute(cen_conn, sql_rc)
-			ddata = IfxPy.fetch_assoc(stmt)
-			rc = ddata['rc']
+			data = IfxPy.fetch_assoc(stmt)
+			rc = data['rc']
 			yield f"📊 Total registros seleccionados en {tabla_temporal}: {rc}\n"
 
 			# Total con errores en XINERR
@@ -422,6 +433,16 @@ def verificar_marcaciones(request):
 		except Exception as e:
 			yield f"❌ Error al conectar con {sede}: {e}\n"
 			return
+		
+		if sede == "CEN":
+			filtro_tarj = "('CE','CO')"
+		elif sede == "VTA":
+			filtro_tarj = "('VI')"
+		elif sede == "VMI":
+			filtro_tarj = "('VA')"
+		else:
+			yield f"❌ Sede desconocida: {sede}\n"
+			return
 
 		try:
 			sql_verificar = f"""
@@ -429,7 +450,7 @@ def verificar_marcaciones(request):
 				FROM {tabla_origen}
 				WHERE proces = 'F'
 				  AND nume_tarj IS NOT NULL
-				  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
+				  AND SUBSTR(nume_tarj, 1, 2) IN {filtro_tarj}
 				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
 			"""
 			stmt = execute(cen_conn, sql_verificar)
