@@ -29,7 +29,9 @@ urlpatterns = [
     path('marcacion_detalle/update/<int:pk>/', MarcacionDetalleUpdateView.as_view(), name='marcacion_detalle_update'),
     path('marcacion_detalle/delete/<int:pk>/', MarcacionDetalleDeleteView.as_view(), name='marcacion_detalle_delete'),
     
+    # Procesar Marcaciones
     path('procesar-marcaciones/', views.procesar_marcaciones_view, name='procesar_marcaciones'),
+    path('verificar-marcaciones/', views.verificar_marcaciones, name='verificar_marcaciones'),
     path('procesar-marcaciones-stream/', views.procesar_marcaciones_stream, name='procesar_marcaciones_stream'),
 
    ]

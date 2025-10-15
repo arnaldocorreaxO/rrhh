@@ -332,7 +332,6 @@ def procesar_marcaciones_stream(request):
 				WHERE proces = 'F'
 				  AND nume_tarj IS NOT NULL
 				  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
-				  AND nume_tarj NOT IN ('CE2973')
 				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
 			"""
 			execute(cen_conn, sql_insert_central)
@@ -394,3 +393,57 @@ def procesar_marcaciones_stream(request):
 
 	return StreamingHttpResponse(event_stream(), content_type='text/plain')
 
+
+# ✅ Verificar si hay marcaciones nuevas sin procesar
+def verificar_marcaciones(request):
+    def event_stream():
+        tabla_origen = "xcmtas_tr"
+
+        fecha_desde = request.POST.get("fecha_desde")
+        fecha_hasta = request.POST.get("fecha_hasta")
+
+        if not fecha_desde or not fecha_hasta:
+            yield "❌ Faltan fechas de filtro\n"
+            return
+
+        try:
+            f_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").strftime('%d/%m/%Y')
+            f_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").strftime('%d/%m/%Y')
+            yield f"📅 Verificando marcaciones entre {f_desde} y {f_hasta}\n"
+        except Exception as e:
+            yield f"❌ Error en formato de fechas: {e}\n"
+            return
+
+        try:
+            cen_conn = connect("CEN")
+        except Exception as e:
+            yield f"❌ Error al conectar con CENTRAL: {e}\n"
+            return
+
+        try:
+            sql_verificar = f"""
+                SELECT COUNT(*) AS rc
+                FROM {tabla_origen}
+                WHERE proces = 'F'
+                  AND nume_tarj IS NOT NULL
+                  AND SUBSTR(nume_tarj, 1, 2) IN ('CE','CO')
+                  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+            """
+            stmt = execute(cen_conn, sql_verificar)
+            data = IfxPy.fetch_assoc(stmt)
+            rc = int(data['rc'])
+
+            if rc > 0:
+                yield f"✅ Hay {rc} marcacione(s) nuevas para procesar\n"
+            else:
+                yield f"ℹ️ No hay marcaciones nuevas en el rango seleccionado\n"
+
+        except Exception as e:
+            yield f"❌ Error al verificar marcaciones: {e}\n"
+        finally:
+            try:
+                close(None, cen_conn)
+            except Exception as e:
+                yield f"⚠️ Error al cerrar conexión CENTRAL: {e}\n"
+
+    return StreamingHttpResponse(event_stream(), content_type='text/plain')

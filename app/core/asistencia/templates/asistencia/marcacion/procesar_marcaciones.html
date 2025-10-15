@@ -60,6 +60,33 @@
       background-color: #0056b3;
     }
 
+    .btn {
+        padding: 0.5em;
+        margin-top: 1.5em;
+        width: 100%;
+        border: none;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -74,20 +101,23 @@
   <div class="container">
     <!-- Columna de filtros -->
     <div class="form-column">
-      <form method="post" action="{% url 'procesar_marcaciones_stream' %}">
+    <form id="marcaciones-form">
         {% csrf_token %}
 
         <label for="fecha_desde">📅 Fecha desde:</label>
         <input type="date" name="fecha_desde" id="fecha_desde" required>
 
-
         <label for="fecha_hasta">📅 Fecha hasta:</label>
         <input type="date" name="fecha_hasta" id="fecha_hasta" required>
 
+        <div style="display: flex; gap: 1em;">
+            <button type="button" id="verificar-btn" class="btn btn-primary">Verificar</button>
+            <button type="submit" class="btn btn-success">Procesar</button>
+        </div>
 
-        <button type="submit">Procesar</button>
-      </form>
+    </form>
     </div>
+
 
     <!-- Columna de resultados -->
     <div class="output-column">
@@ -96,59 +126,63 @@
     </div>
   </div>
 
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-   const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const hoy = new Date();
+                const yyyy = hoy.getFullYear();
+                const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+                const dd = String(hoy.getDate()).padStart(2, '0');
 
-    const fechaDesde = document.getElementById("fecha_desde");
-    const fechaHasta = document.getElementById("fecha_hasta");
+                const fechaDesde = document.getElementById("fecha_desde");
+                const fechaHasta = document.getElementById("fecha_hasta");
+                const textarea = document.getElementById("resultado");
 
-    if (fechaDesde && fechaHasta) {
-      fechaDesde.value = `${yyyy}-${mm}-01`;
-      fechaHasta.value = `${yyyy}-${mm}-${dd}`;
-    } else {
-      console.warn("❗ Los campos de fecha no están presentes en el DOM.");
-    }
+                // Establecer fechas por defecto
+                const defaultDesde = `${yyyy}-${mm}-01`;
+                const defaultHasta = `${yyyy}-${mm}-${dd}`;
+                fechaDesde.value = defaultDesde;
+                fechaHasta.value = defaultHasta;
 
+                const form = document.getElementById("marcaciones-form");
+                const verificarBtn = document.getElementById("verificar-btn");
 
-    // 📤 Manejar envío del formulario
-    const form = document.querySelector("form");
-    const textarea = document.getElementById("resultado");
+                function handleStream(url, formData) {
+                textarea.value = "⏳ Procesando...\n";
+                fetch(url, {
+                    method: "POST",
+                    body: formData,
+                }).then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder("utf-8");
 
-    if (form && textarea) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        textarea.value = "⏳ Procesando...\n";
+                    function read() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) return;
+                        textarea.value += decoder.decode(value);
+                        textarea.scrollTop = textarea.scrollHeight;
+                        read();
+                    });
+                    }
 
-        const formData = new FormData(form);
-        fetch(form.action, {
-          method: "POST",
-          body: formData,
-        }).then(response => {
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder("utf-8");
+                    read();
+                }).catch(error => {
+                    textarea.value += `❌ Error de red: ${error}\n`;
+                });
+                }
 
-          function read() {
-            reader.read().then(({ done, value }) => {
-              if (done) return;
-              textarea.value += decoder.decode(value);
-              textarea.scrollTop = textarea.scrollHeight;
-              read();
+                // Procesar marcaciones
+                form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                handleStream("{% url 'procesar_marcaciones_stream' %}", formData);
+                });
+
+                // Verificar marcaciones
+                verificarBtn.addEventListener("click", function () {
+                const formData = new FormData(form);
+                handleStream("{% url 'verificar_marcaciones' %}", formData);
+                });
             });
-          }
-
-          read();
-        }).catch(error => {
-          textarea.value += `❌ Error de red: ${error}\n`;
-        });
-      });
-    }
-  });
-</script>
-
-
+        </script>
 </body>
 </html>
