@@ -15,6 +15,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
+# Adicionales para la importación y procesamiento de marcaciones desde SQL Server e Informix
+from config.dbsqlserver import SqlConnection, config
+from config.dbinformix_new import connect, execute, commit, close, execute_sp
+from datetime import datetime
 
 
 
@@ -273,201 +277,227 @@ class MarcacionDeleteView(PermissionMixin, DeleteView):
 		context['list_url'] = self.success_url
 		return context
 
+
+
+def obtener_filtro_tarjeta(sede):
+	return {
+		"CEN": "('CE','CO')",
+		"VTA": "('VI')",
+		"VMI": "('VA')"
+	}.get(sede)
+
+def importar_desde_sqlserver(sede, f_desde, f_hasta):
+	tabla_origen = "xcmtas_tr"
+	filtro = obtener_filtro_tarjeta(sede)
+	if not filtro:
+		yield f"❌ Sede desconocida: {sede}\n"
+		return
+
+	try:
+		conn_sql = SqlConnection(cnn_string="DRIVER={%s};SERVER=%s;DATABASE=%s;UID=%s;PWD=%s;" % (
+			config(sede)
+		))
+		yield f"🔗 Conectado a SQL Server {sede}\n"
+
+		sql = f"""
+			SET DATEFORMAT DMY;
+			SELECT noid, nume_tarj, 
+			CONVERT(VARCHAR(10), ddma_emis, 103) AS ddma_emis, hora
+			FROM {tabla_origen}
+			WHERE proces = 'F'
+			  AND nume_tarj IS NOT NULL
+			  AND SUBSTRING(nume_tarj, 1, 2) IN {filtro}
+			  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+		"""
+		# cursor = conn_sql.cursor()
+		cursor = conn_sql.command_execute(sql)
+		rows = cursor.fetchall()
+		yield f"📥 Registros obtenidos desde SQL Server: {len(rows)}\n"
+
+		conn_inf = connect(sede)
+		for idx,row in enumerate(rows, start=1):
+			noid, nume_tarj, ddma_emis, hora = row
+			# entr_sali = "E"  # o usar fn_tipo_marcacion
+			sql_insert = f"""
+				INSERT INTO {tabla_origen} (noid, nume_tarj, ddma_emis, hora, entr_sali,proces)
+				VALUES ('{noid}', '{nume_tarj}', '{ddma_emis}', '{hora}', fn_tipo_marcacion(SUBSTR('{nume_tarj}', 3, 4), '{ddma_emis}', '{hora}'),'F')
+			"""
+			yield f"📥Insertando registro {idx} de {len(rows)} desde SQL Server\n"
+			execute(conn_inf, sql_insert)
+		commit(conn_inf)
+		yield f"✅ Insertados {len(rows)} registros en Informix {sede}\n"
+
+		# Actualizar estado en SQL Server
+		conn_sql.command_execute(f"""
+			UPDATE {tabla_origen}
+			SET proces = 'V'
+			WHERE proces = 'F'
+			  AND nume_tarj IS NOT NULL
+			  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+		""",commit=True)
+		
+		yield f"✔ Estado actualizado a 'V'\n"
+		
+	except Exception as e:
+		yield f"❌ Error en importación desde SQL Server: {e}\n"
+
+def ejecutar_procesamiento(sede, f_desde, f_hasta):
+	tabla_temporal = "xcmtas"
+	tabla_origen = "xcmtas_tr"
+	procedimiento = "informix.sp_cmt_asis_inc"
+	filtro = obtener_filtro_tarjeta(sede)
+
+	if not filtro:
+		yield f"❌ Sede desconocida: {sede}\n"
+		return
+
+	try:
+		conn = connect(sede)
+		yield f"🔌 Conexión exitosa a {sede}\n"
+	except Exception as e:
+		yield f"❌ Error al conectar con {sede}: {e}\n"
+		return
+
+	try:
+		execute(conn, f"DELETE FROM {tabla_temporal};")
+		yield f"📥 Delete masivo en tabla {tabla_temporal}\n"
+
+		sql_insert = f"""
+			INSERT INTO {tabla_temporal} (noid, nume_tarj, ddma_emis, hora, entr_sali)
+			SELECT DISTINCT noid, SUBSTR(nume_tarj, 3, 4), ddma_emis, hora,
+				   fn_tipo_marcacion(SUBSTR(nume_tarj, 3, 4), ddma_emis, hora)
+			FROM {tabla_origen}
+			WHERE proces = 'F'
+			  AND nume_tarj IS NOT NULL
+			  AND SUBSTR(nume_tarj, 1, 2) IN {filtro}
+			  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+		"""
+		execute(conn, sql_insert)
+		# commit(conn)
+		yield f"📥 Insert masivo realizado entre {f_desde} y {f_hasta}\n"
+
+		execute(conn, f"""
+			UPDATE {tabla_origen}
+			SET proces = 'V'
+			WHERE proces = 'F'
+			  AND nume_tarj IS NOT NULL
+			  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+		""")
+		# commit(conn)
+		yield f"✔ Estado actualizado a 'V'\n"
+
+		execute_sp(conn, f"EXECUTE FUNCTION {procedimiento}('{f_desde}', '{f_hasta}', 'CM', 'A')")
+		commit(conn)
+		yield f"🚀 Procedimiento ejecutado: {procedimiento}\n"
+
+		stmt = execute(conn, f"SELECT COUNT(*) AS rc FROM {tabla_temporal}")
+		rc = int(IfxPy.fetch_assoc(stmt)['rc'])
+		yield f"📊 Total registros seleccionados: {rc}\n"
+
+		stmt = execute(conn, "SELECT COUNT(*) AS rc FROM XINERR")
+		rce = int(IfxPy.fetch_assoc(stmt)['rc'])
+		yield f"⚠️ Total registros con errores: {rce}\n"
+
+	except Exception as e:
+		yield f"❌ Error durante procesamiento: {e}\n"
+	finally:
+		try:
+			close(None, conn)
+		except Exception as e:
+			yield f"⚠️ Error al cerrar conexión: {e}\n"
+
+def verificar_marcaciones_por_sede(sede, f_desde, f_hasta):
+	filtro = obtener_filtro_tarjeta(sede)
+	if not filtro:
+		yield f"❌ Sede desconocida: {sede}\n"
+		return
+
+	try:
+		conn = connect(sede)
+		sql = f"""
+			SELECT COUNT(*) AS rc
+			FROM xcmtas_tr
+			WHERE proces = 'F'
+			  AND nume_tarj IS NOT NULL
+			  AND SUBSTR(nume_tarj, 1, 2) IN {filtro}
+			  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
+		"""
+		stmt = execute(conn, sql)
+		rc = int(IfxPy.fetch_assoc(stmt)['rc'])
+
+		if rc > 0:
+			yield f"✅ Hay {rc} marcaciones nuevas para procesar en {sede}\n"
+		else:
+			yield f"ℹ️ No hay marcaciones nuevas en {sede}\n"
+	except Exception as e:
+		yield f"❌ Error al verificar: {e}\n"
+	finally:
+		try:
+			close(None, conn)
+		except Exception as e:
+			yield f"⚠️ Error al cerrar conexión: {e}\n"
+
 from django.http import StreamingHttpResponse
-from config.dbinformix_new import connect, execute, commit, execute_sp
-import time
+from django.shortcuts import render
+#from marcaciones_utils import ejecutar_procesamiento, verificar_marcaciones_por_sede, importar_desde_sqlserver
+from datetime import datetime
 
 def procesar_marcaciones_view(request):
 	return render(request, 'asistencia/marcacion/procesar_marcaciones.html')
 
-
-from django.http import StreamingHttpResponse
-from config.dbinformix_new import connect, execute, commit, close
-from datetime import datetime
-
 def procesar_marcaciones_stream(request):
 	def event_stream():
-		tabla_temporal = "xcmtas"
-		procedimiento = "informix.sp_cmt_asis_inc"
-
 		sede = request.POST.get("sede")
 		fecha_desde = request.POST.get("fecha_desde")
 		fecha_hasta = request.POST.get("fecha_hasta")
 
-		if not fecha_desde or not fecha_hasta:
-			yield "❌ Faltan fechas de filtro\n"
+		if not sede or not fecha_desde or not fecha_hasta:
+			yield "❌ Faltan datos\n"
 			return
 
 		try:
-			
 			f_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").strftime('%d/%m/%Y')
 			f_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").strftime('%d/%m/%Y')
-			yield f"📅 Filtrando desde {f_desde} hasta {f_hasta}\n"
+			yield f"📅 Procesando desde {f_desde} hasta {f_hasta}\n"
 		except Exception as e:
-			yield f"❌ Error en formato de fechas: {e}\n"
-			return
-
-		try:
-			cen_conn = connect(sede)
-			yield f"🔌 Conexión exitosa a {sede}\n"
-		except Exception as e:
-			yield f"❌ Error al conectar con {sede}: {e}\n"
+			yield f"❌ Error en fechas: {e}\n"
 			return
 		
-		if sede == "CEN":
-			filtro_tarj = "('CE','CO')"
-		elif sede == "VTA":
-			filtro_tarj = "('VI')"
-		elif sede == "VMI":
-			filtro_tarj = "('VA')"
-		else:
-			yield f"❌ Sede desconocida: {sede}\n"
-			return
 		
-		# 🔄 Delete masivo en tabla temporal
-		try:
-			sql_delete_central = f"""
-				DELETE FROM {tabla_temporal};
-			"""
-			execute(cen_conn, sql_delete_central)			
-			yield f"📥 Delete masivo en tabla {tabla_temporal}\n"
-		except Exception as e:
-			yield f"❌ Error en delete masivo tabla {tabla_temporal} {sede}: {e}\n"
-			return
-		
-		# 🔄 Insert masivo con filtro de fechas
-		try:
-			sql_insert = f"""
-				INSERT INTO {tabla_temporal} (noid, nume_tarj, ddma_emis, hora, entr_sali)
-				SELECT DISTINCT noid, SUBSTR(nume_tarj, 3, 4), ddma_emis, hora, fn_tipo_marcacion(SUBSTR(nume_tarj, 3, 4),ddma_emis, hora) AS entr_sali
-				FROM xcmtas_tr
-				WHERE proces = 'F'
-				  AND nume_tarj IS NOT NULL
-				  AND SUBSTR(nume_tarj, 1, 2) IN {filtro_tarj}
-				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
-			"""
-			execute(cen_conn, sql_insert)
-			commit(cen_conn)			
-			yield f"📥 Insert masivo realizado entre {f_desde} y {f_hasta}\n"
-			
-		except Exception as e:
-			yield f"❌ Error en insert masivo {sede}: {e}\n"
-			return
+		if sede in("VTA","VMI"):
+			for line in importar_desde_sqlserver(sede, f_desde, f_hasta):
+				yield line
 
-		# ✅ Actualizar estado
-		try:
-			execute(cen_conn, f"""
-				UPDATE xcmtas_tr
-				SET proces = 'V'
-				WHERE proces = 'F'
-				  AND nume_tarj IS NOT NULL
-				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
-			""")
-			commit(cen_conn)
-			yield f"✔ Estado actualizado a 'V' entre {f_desde} y {f_hasta}\n"
-		except Exception as e:
-			yield f"❌ Error al actualizar estado en {sede}: {e}\n"
-			return
-
-		# 🚀 Ejecutar procedimiento
-		try:
-			execute_sp(cen_conn, f"""EXECUTE FUNCTION informix.sp_cmt_asis_inc('{f_desde}', '{f_hasta}','CM','A')""")
-			commit(cen_conn)
-			yield f"🚀 Ejecutado con éxito {procedimiento} en {sede}\n"
-		except Exception as e:
-			yield f"❌ Error al ejecutar {procedimiento} en {sede}: {e}\n"
-			return
-		# 📊 Conteo de registros procesados y errores
-		
-		try:
-			# Total seleccionados en tabla temporal
-			sql_rc = f"SELECT COUNT(*) AS rc FROM {tabla_temporal}"
-			stmt = execute(cen_conn, sql_rc)
-			data = IfxPy.fetch_assoc(stmt)
-			rc = data['rc']
-			yield f"📊 Total registros seleccionados en {tabla_temporal}: {rc}\n"
-
-			# Total con errores en XINERR
-			sql_rce = "SELECT COUNT(*) AS rc FROM XINERR"
-			stmt = execute(cen_conn, sql_rce)
-			ddata = IfxPy.fetch_assoc(stmt)
-			rce = ddata['rc']
-			yield f"⚠️ Total registros con errores en XINERR: {rce}\n"
-
-		except Exception as e:
-			yield f"❌ Error al contar registros: {e}\n"
-
-
-		# 🔒 Cierre
-		try:
-			close(None, cen_conn)
-		except Exception as e:
-			yield f"⚠️ Error al cerrar conexión {sede}: {e}\n"
+		for line in ejecutar_procesamiento(sede, f_desde, f_hasta):
+			yield line
 
 	return StreamingHttpResponse(event_stream(), content_type='text/plain')
 
-
-# ✅ Verificar si hay marcaciones nuevas sin procesar
 def verificar_marcaciones(request):
 	def event_stream():
-		tabla_origen = "xcmtas_tr"
 		sede = request.POST.get("sede")
 		fecha_desde = request.POST.get("fecha_desde")
 		fecha_hasta = request.POST.get("fecha_hasta")
 
-		if not fecha_desde or not fecha_hasta:
-			yield "❌ Faltan fechas de filtro\n"
+		if not sede or not fecha_desde or not fecha_hasta:
+			yield "❌ Faltan datos\n"
 			return
 
 		try:
 			f_desde = datetime.strptime(fecha_desde, "%Y-%m-%d").strftime('%d/%m/%Y')
 			f_hasta = datetime.strptime(fecha_hasta, "%Y-%m-%d").strftime('%d/%m/%Y')
-			yield f"📅 Verificando marcaciones entre {f_desde} y {f_hasta}\n"
+			yield f"📅 Verificando desde {f_desde} hasta {f_hasta}\n"
 		except Exception as e:
-			yield f"❌ Error en formato de fechas: {e}\n"
+			yield f"❌ Error en fechas: {e}\n"
 			return
 
-		try:
-			cen_conn = connect(sede)
-			yield f"🔌 Conexión exitosa a {sede}\n"
-		except Exception as e:
-			yield f"❌ Error al conectar con {sede}: {e}\n"
-			return
-		
-		if sede == "CEN":
-			filtro_tarj = "('CE','CO')"
-		elif sede == "VTA":
-			filtro_tarj = "('VI')"
-		elif sede == "VMI":
-			filtro_tarj = "('VA')"
-		else:
-			yield f"❌ Sede desconocida: {sede}\n"
-			return
+	   # 🔄 Importar desde SQL Server si es VTA
+		if sede in("VTA","VMI"):
+			for line in importar_desde_sqlserver(sede, f_desde, f_hasta):
+				yield line
 
-		try:
-			sql_verificar = f"""
-				SELECT COUNT(*) AS rc
-				FROM {tabla_origen}
-				WHERE proces = 'F'
-				  AND nume_tarj IS NOT NULL
-				  AND SUBSTR(nume_tarj, 1, 2) IN {filtro_tarj}
-				  AND ddma_emis BETWEEN '{f_desde}' AND '{f_hasta}'
-			"""
-			stmt = execute(cen_conn, sql_verificar)
-			data = IfxPy.fetch_assoc(stmt)
-			rc = int(data['rc'])
-
-			if rc > 0:
-				yield f"✅ Hay {rc} marcacione(s) nuevas para procesar\n"
-			else:
-				yield f"ℹ️ No hay marcaciones nuevas en el rango seleccionado\n"
-
-		except Exception as e:
-			yield f"❌ Error al verificar marcaciones: {e}\n"
-		finally:
-			try:
-				close(None, cen_conn)
-			except Exception as e:
-				yield f"⚠️ Error al cerrar conexión {sede}: {e}\n"
+		# 🔍 Verificar en Informix
+		for line in verificar_marcaciones_por_sede(sede, f_desde, f_hasta):
+			yield line
 
 	return StreamingHttpResponse(event_stream(), content_type='text/plain')
